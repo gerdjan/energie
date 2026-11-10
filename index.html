@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b6b63">
+<title>Energiekosten: HW naar Frank</title>
+<style>
+:root{--bg:#eef2f5;--card:#fff;--ink:#14202b;--mute:#5d6b78;--line:#d7dee4;--acc:#0b6b63;--on:#fff;--accbg:#dff1ee;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f171e;--card:#18232d;--ink:#e8eef3;--mute:#95a4b1;--line:#2b3946;--acc:#4fd1c0;--on:#08201d;--accbg:#143a37}}
+:root[data-theme="dark"]{--bg:#0f171e;--card:#18232d;--ink:#e8eef3;--mute:#95a4b1;--line:#2b3946;--acc:#4fd1c0;--on:#08201d;--accbg:#143a37}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Avenir Next","Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+main{max-width:520px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:1.05rem;font-weight:600;color:var(--mute);margin:0 0 14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:14px}
+.res{background:var(--accbg);border-color:transparent}
+.lbl{font-size:.85rem;color:var(--mute)}
+.big{font-size:clamp(2.8rem,15vw,4.4rem);font-weight:700;letter-spacing:-.02em;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--ink)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid .wide{grid-column:1/-1}
+label{display:block;font-size:.85rem;color:var(--mute)}
+input{width:100%;font:inherit;font-size:1.1rem;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px 12px;margin-top:4px}
+input:focus,button:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+.rows{margin-top:14px;border-top:1px solid var(--line);padding-top:10px;font-variant-numeric:tabular-nums}
+.rows div{display:flex;justify-content:space-between;padding:3px 0;font-size:.95rem}
+.rows span:first-child{color:var(--mute)}
+.hint{font-size:.85rem;color:var(--mute);margin:10px 0 0}
+details summary{cursor:pointer;font-weight:600}
+button{font:inherit;cursor:pointer;border:0;border-radius:10px;background:transparent;color:var(--mute);text-decoration:underline;padding:0;margin-top:10px;font-size:.85rem}
+</style>
+</head>
+<body>
+<main>
+<h1>Energiekosten: van HW naar Frank</h1>
+
+<section class="card res" aria-live="polite">
+  <div class="lbl">Verwachte kosten bij Frank</div>
+  <div class="big" id="out">€ 0,00</div>
+  <div class="rows">
+    <div><span>HW-bedrag</span><b id="rH">–</b></div>
+    <div><span>Correctie afname</span><b id="rA">–</b></div>
+    <div><span>Correctie teruglevering</span><b id="rT">–</b></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="grid">
+    <label>Afname (kWh)<input id="a" inputmode="decimal" placeholder="21,0" autocomplete="off"></label>
+    <label>Teruglevering (kWh)<input id="t" inputmode="decimal" placeholder="0,1" autocomplete="off"></label>
+    <label class="wide">Kosten volgens HW (€)<input id="h" inputmode="decimal" placeholder="10,06" autocomplete="off"></label>
+  </div>
+  <p class="hint">Vul de cijfers van HW tot nu toe in, of de dagtotalen. Komma of punt werkt allebei.</p>
+</section>
+
+<section class="card">
+  <details>
+    <summary>Formule</summary>
+    <p class="hint">Frank = HW − a × afname − b × teruglevering. De standaardwaarden zijn gevonden door 32 dagen HW-cijfers met de echte Frank-bedragen te vergelijken. Het bedrag is het dagbedrag zonder vastrecht en belastingvermindering.</p>
+    <div class="grid" style="margin-top:10px">
+      <label>a (€ per kWh afname)<input id="ca" inputmode="decimal"></label>
+      <label>b (€ per kWh teruglevering)<input id="cb" inputmode="decimal"></label>
+    </div>
+    <button id="rs" type="button">Standaardwaarden herstellen</button>
+  </details>
+</section>
+</main>
+<script>
+(function(){
+var DEF={a:0.165,b:0.021},K="energie-formule-v1",$=function(i){return document.getElementById(i)};
+var co={a:DEF.a,b:DEF.b};
+try{var s=JSON.parse(localStorage.getItem(K));if(s&&isFinite(s.a)&&isFinite(s.b))co=s}catch(e){}
+var eur=new Intl.NumberFormat("nl-NL",{style:"currency",currency:"EUR"});
+function p(v){v=String(v||"").trim().replace(/\s/g,"");if(!v)return NaN;if(v.indexOf(",")>-1)v=v.replace(/\./g,"").replace(",",".");return Number(v)}
+function f(v){return String(v).replace(".",",")}
+function calc(){
+ var a=p($("a").value),t=p($("t").value),h=p($("h").value);
+ if(isNaN(t))t=0;
+ if(isNaN(a)||isNaN(h)){$("out").textContent="€ 0,00";["rH","rA","rT"].forEach(function(i){$(i).textContent="–"});return}
+ var ca=-co.a*a,ct=-co.b*t;
+ $("out").textContent=eur.format(h+ca+ct);
+ $("rH").textContent=eur.format(h);$("rA").textContent=eur.format(ca);$("rT").textContent=eur.format(ct);
+}
+["a","t","h"].forEach(function(i){$(i).addEventListener("input",calc)});
+function setCo(){$("ca").value=f(co.a);$("cb").value=f(co.b)}
+["ca","cb"].forEach(function(i){$(i).addEventListener("input",function(){var v=p(this.value);if(isNaN(v))return;co[i==="ca"?"a":"b"]=v;try{localStorage.setItem(K,JSON.stringify(co))}catch(e){}calc()})});
+$("rs").onclick=function(){co={a:DEF.a,b:DEF.b};try{localStorage.setItem(K,JSON.stringify(co))}catch(e){}setCo();calc()};
+setCo();calc();
+})();
+</script>
+</body>
+</html>
