@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - "scripts/**"
+      - "data/dagen.csv"
       - ".github/workflows/fetch-data.yml"
   schedule:
     # UTC. 05:00 ochtendrun; 14:30 en 16:30 UTC liggen in zomer en winter na ca. 15:00 NL-tijd
@@ -33,6 +34,11 @@ jobs:
         continue-on-error: true
         run: python3 scripts/fetch_data.py
 
+      - name: Model kalibreren
+        id: calibrate
+        continue-on-error: true
+        run: python3 scripts/calibrate.py
+
       - name: Committen (ook na een mislukte fetch, voor status.json)
         if: always()
         run: |
@@ -48,7 +54,7 @@ jobs:
           fi
 
       - name: Mislukken zichtbaar maken
-        if: steps.fetch.outcome == 'failure'
+        if: steps.fetch.outcome == 'failure' || steps.calibrate.outcome == 'failure'
         run: |
           echo "Ophalen is (deels) mislukt, zie data/status.json"
           exit 1

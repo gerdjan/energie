@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b6b63">
+<title>Verwachting energiekosten</title>
+<style>
+:root{--bg:#eef2f5;--card:#fff;--ink:#14202b;--mute:#5d6b78;--line:#d7dee4;--acc:#0b6b63;--accbg:#dff1ee;--good:#1b8a4b;--bad:#c2410c;--warn:#8a5a00;--warnbg:#fff3d6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f171e;--card:#18232d;--ink:#e8eef3;--mute:#95a4b1;--line:#2b3946;--acc:#4fd1c0;--accbg:#143a37;--good:#4ade80;--bad:#fb923c;--warn:#f5c97a;--warnbg:#3a2e12}}
+:root[data-theme="dark"]{--bg:#0f171e;--card:#18232d;--ink:#e8eef3;--mute:#95a4b1;--line:#2b3946;--acc:#4fd1c0;--accbg:#143a37;--good:#4ade80;--bad:#fb923c;--warn:#f5c97a;--warnbg:#3a2e12}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Avenir Next","Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+main{max-width:560px;margin:0 auto;padding:20px 16px 48px}
+nav{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+nav a{color:var(--acc);font-size:.9rem}
+h1{font-size:1.05rem;font-weight:600;color:var(--mute);margin:0}
+h2{font-size:1rem;margin:0 0 4px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:14px}
+.lbl{font-size:.85rem;color:var(--mute)}
+.big{font-size:clamp(2.6rem,13vw,3.8rem);font-weight:700;letter-spacing:-.02em;line-height:1.1;font-variant-numeric:tabular-nums}
+.band{color:var(--mute);font-size:.95rem}
+.rows{margin-top:12px;border-top:1px solid var(--line);padding-top:8px;font-variant-numeric:tabular-nums}
+.rows div{display:flex;justify-content:space-between;gap:12px;padding:3px 0;font-size:.95rem}
+.rows span:first-child{color:var(--mute)}
+.note{font-size:.85rem;color:var(--mute);margin:10px 0 0}
+.alert{background:var(--warnbg);color:var(--warn);border-radius:10px;padding:10px 12px;font-size:.9rem;margin:0 0 14px}
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px}
+label{display:block;font-size:.8rem;color:var(--mute)}
+input{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 10px;margin-top:3px}
+input:focus,a:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+svg{width:100%;height:auto;display:block;margin-top:12px}
+svg text{fill:var(--mute);font-size:10px}
+.sum{font-size:.9rem;margin-top:6px}
+details summary{cursor:pointer;font-weight:600}
+</style>
+</head>
+<body>
+<main>
+<nav><h1>Verwachting energiekosten</h1><a href="index.html">Omrekenen HW naar Frank</a></nav>
+<div id="alerts"></div>
+
+<section class="card" aria-live="polite">
+  <h2>Vandaag</h2>
+  <div class="lbl" id="todayLbl">Verwachte kosten bij Frank</div>
+  <div class="big" id="todayBig">–</div>
+  <div class="band" id="todayBand"></div>
+  <div class="grid">
+    <label>Afname tot nu (kWh)<input id="ia" inputmode="decimal" placeholder="optioneel" autocomplete="off"></label>
+    <label>Teruglevering (kWh)<input id="ie" inputmode="decimal" placeholder="optioneel" autocomplete="off"></label>
+    <label>HW-bedrag (€)<input id="ih" inputmode="decimal" placeholder="optioneel" autocomplete="off"></label>
+  </div>
+  <div class="rows" id="todayRows"></div>
+  <p class="note" id="todayNote"></p>
+  <div id="todayChart"></div>
+</section>
+
+<section class="card">
+  <h2>Morgen</h2>
+  <div class="lbl" id="tmLbl">Verwachte kosten bij Frank</div>
+  <div class="big" id="tmBig">–</div>
+  <div class="band" id="tmBand"></div>
+  <div class="rows" id="tmRows"></div>
+  <p class="note" id="tmNote"></p>
+  <div id="tmChart"></div>
+</section>
+
+<section class="card">
+  <details>
+    <summary>Hoe goed is dit?</summary>
+    <div id="about" class="note"></div>
+  </details>
+</section>
+</main>
+
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+var TZ="Europe/Amsterdam";
+var eur=new Intl.NumberFormat("nl-NL",{style:"currency",currency:"EUR"});
+var n1=new Intl.NumberFormat("nl-NL",{maximumFractionDigits:1});
+var n0=new Intl.NumberFormat("nl-NL",{maximumFractionDigits:0});
+var HW_A=0.165,HW_E=0.021;                 // zelfde formule als index.html
+var M,P,W,ST,PM={},WM={};
+
+function get(u){return fetch(u+"?v="+Date.now()).then(function(r){if(!r.ok)throw new Error(u+" gaf "+r.status);return r.json()})}
+function parseNum(v){v=String(v||"").trim().replace(/\s/g,"");if(!v)return NaN;if(v.indexOf(",")>-1)v=v.replace(/\./g,"").replace(",",".");return Number(v)}
+function nlNow(){
+  var p=new Intl.DateTimeFormat("en-CA",{timeZone:TZ,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(new Date()),o={};
+  p.forEach(function(x){o[x.type]=x.value});
+  return{date:o.year+"-"+o.month+"-"+o.day,h:+o.hour,m:+o.minute};
+}
+function addDay(d,n){var x=new Date(d+"T12:00:00Z");x.setUTCDate(x.getUTCDate()+n);return x.toISOString().slice(0,10)}
+function sum(a){return a.reduce(function(s,x){return s+x},0)}
+function mean(a){return a.length?sum(a)/a.length:NaN}
+
+// ----- model -----
+function dayInfo(date){
+  var w=W.filter(function(h){return h.t.indexOf(date)===0&&h.temp!=null});
+  var p=P.filter(function(h){return h.t.indexOf(date)===0});
+  if(w.length<20)return null;
+  var rad=w.map(function(h){return h.radiation||0});
+  var info={date:date,w:w,T:mean(w.map(function(h){return h.temp})),S:sum(rad)/1000,prices:p,hasPrices:p.length>=23};
+  if(info.hasPrices){
+    var pr={};p.forEach(function(h){pr[h.t]=h.all_in});
+    info.pd=mean(p.map(function(h){return h.all_in}));
+    var wr=0,ws=0;w.forEach(function(h){if(pr[h.t]!=null){wr+=pr[h.t]*(h.radiation||0);ws+=(h.radiation||0)}});
+    info.pz=ws>0?wr/ws:info.pd;
+  }
+  return info;
+}
+function predictVolume(info){
+  var a=Math.max(0,M.afname.c0+M.afname.c1*info.T);
+  var e=Math.max(0,M.terug.d0+M.terug.d1*info.S+M.terug.d2*a);
+  return{a:a,e:e};
+}
+function cost(a,e,pd,pz){var k=M.kosten;return k.k_p*a*pd-k.k_e*e*pz-k.k_c*a}
+function effPrice(p){return M.kosten.k_p*p-M.kosten.k_c}   // wat een kWh afname in het Frank-dagbedrag kost
+function sunWord(S){return S<0.8?"grijs":(S<1.8?"wisselend":"zonnig")}
+
+// ----- ui helpers -----
+function rows(el,list){el.innerHTML="";list.forEach(function(r){var d=document.createElement("div"),a=document.createElement("span"),b=document.createElement("b");a.textContent=r[0];b.textContent=r[1];d.appendChild(a);d.appendChild(b);el.appendChild(d)})}
+function hhmm(h){return String(h).padStart(2,"0")+":00"}
+function chart(el,info,fromHour){
+  el.innerHTML="";
+  if(!info||!info.hasPrices)return;
+  var hrs=info.prices.map(function(h){return{h:+h.t.slice(11,13),e:effPrice(h.all_in)}});
+  var sel=hrs.filter(function(x){return x.h>=fromHour});
+  if(sel.length<3)return;
+  var vals=sel.map(function(x){return x.e}),allv=hrs.map(function(x){return x.e}),lo=Math.min(0,Math.min.apply(null,allv)),hi=Math.max.apply(null,allv);
+  var sorted=vals.slice().sort(function(a,b){return a-b}),k=Math.min(4,Math.floor(sel.length/3));
+  var cut_lo=sorted[k-1],cut_hi=sorted[sorted.length-k];
+  var W0=480,H=150,pl=4,pb=16,pt=6,bw=(W0-pl*2)/24,sc=(H-pb-pt)/((hi-lo)||1);
+  var s='<svg viewBox="0 0 '+W0+' '+H+'" role="img" aria-label="Prijs per uur">';
+  var zero=pt+(hi-0)*sc;
+  hrs.forEach(function(x){
+    var inRange=x.h>=fromHour,y=pt+(hi-Math.max(0,x.e))*sc,hgt=Math.abs(x.e)*sc;
+    if(x.e<0)y=zero;
+    var col=!inRange?"var(--line)":(x.e<=cut_lo?"var(--good)":(x.e>=cut_hi?"var(--bad)":"var(--acc)"));
+    s+='<rect x="'+(pl+x.h*bw+1)+'" y="'+y.toFixed(1)+'" width="'+(bw-2).toFixed(1)+'" height="'+Math.max(1,hgt).toFixed(1)+'" rx="2" fill="'+col+'"><title>'+hhmm(x.h)+': '+n1.format(x.e*100)+' ct/kWh</title></rect>';
+  });
+  [0,3,6,9,12,15,18,21].forEach(function(h){s+='<text x="'+(pl+h*bw+2)+'" y="'+(H-3)+'">'+h+'</text>'});
+  s+='</svg>';
+  // goedkoopste blok van 3 uur
+  var best=null;
+  for(var i=0;i+2<sel.length;i++){var avg=(sel[i].e+sel[i+1].e+sel[i+2].e)/3;if(best===null||avg<best.avg)best={avg:avg,h:sel[i].h}}
+  var t=document.createElement("div");t.innerHTML=s;
+  var p=document.createElement("p");p.className="sum";
+  if(best)p.textContent="Goedkoopste blok van 3 uur: "+hhmm(best.h)+" tot "+hhmm(best.h+3)+", gemiddeld "+n1.format(best.avg*100)+" ct per kWh afname (groen: goedkoopste uren, oranje: duurste).";
+  el.appendChild(t);el.appendChild(p);
+}
+
+// ----- vandaag -----
+function renderToday(){
+  var now=nlNow(),info=dayInfo(now.date);
+  if(!info){$("todayBig").textContent="–";$("todayNote").textContent="Geen weerdata voor vandaag.";return}
+  var v=predictVolume(info),a=parseFloat(parseNum($("ia").value)),e=parseNum($("ie").value),h=parseNum($("ih").value);
+  var out=[],rmse=M.onzekerheid.kosten_rmse_zonder_uitbijters||1;
+  var prof=M.dagprofiel_afname,fa=0;
+  for(var i=0;i<now.h&&i<24;i++)fa+=prof[i];
+  if(now.h<24)fa+=prof[now.h]*now.m/60;
+  var rad=info.w.map(function(x){return{h:+x.t.slice(11,13),r:x.radiation||0}}),rt=sum(rad.map(function(x){return x.r}));
+  var radRem=sum(rad.map(function(x){return x.h>now.h?x.r:(x.h===now.h?x.r*(1-now.m/60):0)}));
+  var fe=rt>0?radRem/rt:0;
+  var aRem=v.a*(1-fa),eRem=v.e*fe;
+  var haveIn=!isNaN(a)&&!isNaN(h);
+  if(isNaN(e))e=0;
+  out.push(["Afname verwacht hele dag",n0.format(haveIn?a+aRem:v.a)+" kWh"]);
+  out.push(["Teruglevering verwacht",n0.format(haveIn?e+eRem:v.e)+" kWh"]);
+  out.push(["Weer",n0.format(info.T)+" °C gemiddeld, "+sunWord(info.S)]);
+  var total=null,band=rmse;
+  if(info.hasPrices){
+    var remP=info.prices.filter(function(x){return +x.t.slice(11,13)>=now.h});
+    var pRem=remP.length?mean(remP.map(function(x){return x.all_in})):info.pd;
+    var wr=0,ws=0;info.w.forEach(function(x){var hh=+x.t.slice(11,13);if(hh>=now.h){var pp=info.prices.filter(function(y){return y.t===x.t})[0];if(pp){wr+=pp.all_in*(x.radiation||0);ws+=(x.radiation||0)}}});
+    var pzRem=ws>0?wr/ws:pRem;
+    var remCost=cost(aRem,eRem,pRem,pzRem);
+    var full=cost(v.a,v.e,info.pd,info.pz);
+    if(haveIn){
+      var sofar=h-HW_A*a-HW_E*e;
+      total=sofar+remCost;
+      band=rmse*Math.sqrt(Math.max(0.05,1-fa));
+      out.push(["Tot nu toe (uit jouw invoer)",eur.format(sofar)]);
+      out.push(["Nog te komen (schatting)",eur.format(remCost)]);
+    }else{
+      total=full;
+      out.push(["Gemiddelde prijs vandaag",n1.format(info.pd*100)+" ct/kWh all-in"]);
+    }
+    $("todayLbl").textContent=haveIn?"Verwacht totaal vandaag bij Frank":"Verwachte kosten vandaag bij Frank (hele dag)";
+  }else{
+    $("todayLbl").textContent="Prijzen van vandaag ontbreken";
+  }
+  $("todayBig").textContent=total===null?"–":eur.format(total);
+  $("todayBand").textContent=total===null?"":"ongeveer "+eur.format(total-band)+" tot "+eur.format(total+band);
+  rows($("todayRows"),out);
+  $("todayNote").textContent=haveIn?"Vul afname en HW-bedrag tot nu toe in. De rest van de dag volgt uit het model. Teruglevering is optioneel.":"Vul onder de titel je afname en HW-bedrag tot nu toe in voor een scherpere verwachting.";
+  chart($("todayChart"),info,now.h);
+  try{localStorage.setItem("verwachting-"+now.date,JSON.stringify({a:$("ia").value,e:$("ie").value,h:$("ih").value}))}catch(x){}
+}
+
+// ----- morgen -----
+function renderTomorrow(){
+  var now=nlNow(),d=addDay(now.date,1),info=dayInfo(d);
+  if(!info){$("tmBig").textContent="–";$("tmNote").textContent="Er is nog geen weerverwachting voor morgen.";return}
+  var v=predictVolume(info),rmse=M.onzekerheid.kosten_rmse_zonder_uitbijters||1;
+  var list=[["Afname verwacht",n0.format(v.a)+" kWh"],["Teruglevering verwacht",n0.format(v.e)+" kWh"],["Weer",n0.format(info.T)+" °C gemiddeld, "+sunWord(info.S)]];
+  if(info.hasPrices){
+    var c=cost(v.a,v.e,info.pd,info.pz);
+    $("tmBig").textContent=eur.format(c);
+    $("tmBand").textContent="ongeveer "+eur.format(c-rmse)+" tot "+eur.format(c+rmse);
+    list.push(["Gemiddelde prijs",n1.format(info.pd*100)+" ct/kWh all-in"]);
+    $("tmNote").textContent="Gaat uit van een dag zonder auto laden. Met laden komt er al snel 10 tot 20 kWh bij.";
+    chart($("tmChart"),info,0);
+  }else{
+    $("tmBig").textContent="–";$("tmBand").textContent="";
+    $("tmLbl").textContent="Prijzen voor morgen nog niet bekend";
+    $("tmNote").textContent="Frank publiceert de prijzen voor morgen meestal rond 15:00. Hieronder wel de verwachte afname en teruglevering op basis van het weer.";
+  }
+  rows($("tmRows"),list);
+}
+
+function about(){
+  var el=$("about");el.innerHTML="";
+  function p(t){var x=document.createElement("p");x.textContent=t;el.appendChild(x)}
+  p("Het model is gekalibreerd op "+M.dagen_in_fit+" dagen, waarvan "+M.dagen_met_frank+" met een echt Frank-bedrag. Afname volgt de buitentemperatuur, teruglevering de zonnestraling en de kosten de uurprijzen van Frank.");
+  p("Typische afwijking per dag in een terugkijkende test: ongeveer "+eur.format(M.onzekerheid.kosten_rmse_zonder_uitbijters)+" op dagen zonder auto laden. Dat komt vooral doordat het verbruik per dag sterk wisselt. Met het werkelijke verbruik is de afwijking veel kleiner (ca. 0,34 euro).");
+  p("Dagen die ver boven de verwachting lagen en zijn weggelaten uit de afname-fit (waarschijnlijk auto laden): "+(M.uitbijters_afname||[]).join(", ")+".");
+  p("Het verdeelpatroon over de uren (voor het deel van de dag dat al voorbij is) is een aanname en niet uit jouw data gehaald.");
+}
+
+function alerts(){
+  var el=$("alerts");el.innerHTML="";
+  function add(t){var d=document.createElement("div");d.className="alert";d.textContent=t;el.appendChild(d)}
+  if(ST&&ST.finished){
+    var age=(Date.now()-new Date(ST.finished).getTime())/36e5;
+    if(age>30)add("De gegevens zijn "+n0.format(age)+" uur oud. Kijk in GitHub bij Actions of de dagelijkse ophaalactie nog draait.");
+  }
+  if(ST&&ST.sources&&ST.sources.prijzen&&ST.sources.prijzen.approx)add("De prijzen zijn een benadering, omdat Frank niet bereikbaar was.");
+  if(ST&&ST.sources&&ST.sources.weer&&ST.sources.weer.ok===false)add("Het weer kon niet worden opgehaald. De weerdata is mogelijk verouderd.");
+}
+
+Promise.all([get("data/model.json"),get("data/prijzen.json"),get("data/weer.json"),get("data/status.json")]).then(function(r){
+  M=r[0];P=r[1].hours;W=r[2].hourly;ST=r[3];
+  try{var s=JSON.parse(localStorage.getItem("verwachting-"+nlNow().date));if(s){$("ia").value=s.a||"";$("ie").value=s.e||"";$("ih").value=s.h||""}}catch(x){}
+  ["ia","ie","ih"].forEach(function(i){$(i).addEventListener("input",renderToday)});
+  alerts();renderToday();renderTomorrow();about();
+}).catch(function(err){
+  var d=document.createElement("div");d.className="alert";d.textContent="De gegevens konden niet worden geladen ("+err.message+"). Open deze pagina via de website en niet als los bestand.";$("alerts").appendChild(d);
+});
+})();
+</script>
+</body>
+</html>
