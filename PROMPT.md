@@ -28,7 +28,7 @@ Invoer voor de voorspelling:
 
 ## Technische randvoorwaarden
 - Geen backend, geen database, geen opslag van persoonlijke gegevens, geen secrets in de repo. Mijn verbruiksgegevens mogen niet in de publieke repo komen, behalve de 27 kalibratiedagen hieronder.
-- Eerst testen of de browser de API's direct kan aanroepen (CORS). Zo ja: haal live op in de pagina met `fetch`. Zo nee: maak een geplande **GitHub Action** (cron, ruim na 15:00 en een keer 's ochtends) die de gegevens ophaalt en als JSON in de repo zet (bijvoorbeeld `data/prijzen.json`, `data/weer.json`), die de pagina dan leest.
+- **Besluit: externe data wordt uitsluitend door een geplande GitHub Action opgehaald** (zie `DESIGN.md`, sectie 4b). De browser roept Frank en Open-Meteo nooit zelf aan. De Action schrijft JSON naar `data/`, de pagina leest alleen die bestanden.
 - Pagina's blijven statisch, werken op mobiel en desktop, met licht en donker thema, en zonder framework tenzij echt nodig. Nederlandse interface, getallen met komma als decimaalteken, euro's met `Intl.NumberFormat("nl-NL")`.
 - Modelparameters in een los JSON-bestand, zodat ik ze later kan bijstellen zonder code te wijzigen.
 

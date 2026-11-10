@@ -34,6 +34,10 @@ Beperkingen:
 - **Externe data (weer, Frank-prijzen):** pagina's gehost op een andere origin mogen in sommige omgevingen niet vrij fetchen. Test CORS. Als directe aanroep niet werkt, gebruik een geplande GitHub Action die JSON in `data/` schrijft.
 - **Auto laden** wordt in deze fase bewust genegeerd in de interface. Wel robuust omgaan met uitschieters in de kalibratie.
 
+
+## 4b. Besluit: gegevens ophalen via GitHub Actions
+Sessies van AI-tools hebben vaak geen internet (DNS-fouten bij Open-Meteo en Frank zijn al voorgekomen), en browsers kunnen door CORS beperkt zijn. Daarom haalt een geplande GitHub Action (`.github/workflows/fetch-data.yml`, script `scripts/fetch_data.py`) dagelijks het weer en de Frank-uurprijzen op en commit ze als JSON in `data/`. De pagina leest alleen die JSON. De Action schrijft ook `data/status.json` (wat gelukt of mislukt is, per bron, met foutmelding en korte voorbeeldrespons), zodat een tool zonder internet of Actions-leesrechten kan zien wat er gebeurde door de repo te pullen.
+
 ## 5. Bronnen en aannames voor functie 2 (nog niet getest in deze repo)
 - Weer: Open-Meteo (geen sleutel nodig), eventueel met KNMI HARMONIE als model. Locatie Meppel, ca. 52,70 N, 6,19 E.
 - Frank-prijzen: openbare GraphQL-API zonder login. Endpoints en velden zoals genoemd in `PROMPT.md` komen uit community-voorbeelden en kunnen verouderd zijn. Controleer ze. De prijzen voor morgen staan er meestal rond 15:00 (Nederlandse tijd). De API levert mogelijk kwartierprijzen.
