@@ -78,10 +78,36 @@ Sessies van AI-tools hebben vaak geen internet (DNS-fouten bij Open-Meteo en Fra
 
 **Bekende beperkingen en aandachtspunten:**
 - Geplande workflows in een publieke repo worden na ca. 60 dagen zonder repository-activiteit door GitHub uitgeschakeld. Of de dagelijkse data-commits van de Action dat voorkomen is niet geverifieerd. Controleer af en toe het tabblad Actions; bij uitschakeling is één klik op "Enable workflow" voldoende, of start hem handmatig via "Run workflow".
-- Of een Action-commit een nieuwe GitHub Pages-deployment triggert is nog niet gecontroleerd. Controleer dat zodra de pagina `verwachting.html` bestaat.
+- Een Action-commit triggert wel een nieuwe GitHub Pages-build (geverifieerd via de Pages-API: laatste build was gepusht door github-actions[bot], status built).
 - De Frank-API is niet officieel gedocumenteerd en kan zonder aankondiging veranderen. Een mislukte run schrijft de fout in `data/status.json` en laat de oude data staan.
 - De terugvalbronnen rekenen met geschatte opslag en belasting (`APPROX` in `fetch_data.py`, niet geverifieerd). Hun uitvoer is gemarkeerd met `approx: true`.
 
 **Handmatig starten:** GitHub, tabblad Actions, workflow "Data ophalen (weer en Frank-prijzen)", knop "Run workflow".
 
-**Nog te doen:** kalibratie en model (sectie 3 en 4 van `PROMPT.md`), de pagina `verwachting.html` en de koppeling met `index.html`.
+## 10. Status: model, kalibratie en verwachtingspagina (gebouwd, 10 november 2026)
+
+**Bestanden**
+- `data/dagen.csv`: de kalibratiedagen (datum, afname, teruglevering, HW-bedrag, Frank-bedrag; Frank leeg als onbekend). Hier voeg je nieuwe dagen aan toe (een regel per dag). Bij een wijziging van dit bestand draait de Action en kalibreert hij het model opnieuw.
+- `scripts/calibrate.py`: kalibreert (alleen standaardbibliotheek) en schrijft `data/model.json` en `data/backtest.json`. Draait in de Action direct na het ophalen.
+- `verwachting.html`: leest `data/model.json`, `prijzen.json`, `weer.json` en `status.json`. Doet alle berekeningen in de browser. Heeft geen invoer nodig, maar je kunt je afname en HW-bedrag tot nu toe invullen voor een scherpere verwachting voor vandaag (invoer wordt per dag lokaal onthouden).
+- `index.html` (functie 1) is ongewijzigd, op één link naar `verwachting.html` na. Getest in een browser: 5 november (20,72 kWh, 2,34 kWh, HW 9,92) geeft 6,45, werkelijk 6,46.
+
+**Het model (per dag)**
+1. `afname = 27.88 -1.362 × gemiddelde temperatuur` (kWh). De fit is robuust: dagen die ver boven de lijn liggen worden herhaaldelijk weggelaten. Uitbijters op dit moment: 2026-10-08, 2026-10-09, 2026-10-10, 2026-10-11, 2026-10-24, 2026-11-07, waarschijnlijk auto laden (niet bevestigd; de eigenaar heeft de laaddagen niet doorgegeven).
+2. `teruglevering = max(0, 2.11 + 2.53 × zonnestraling − 0.178 × afname)`. Zonnestraling is de dagsom van de uurlijkse globale straling in kWh/m².
+3. `kosten (Frank-dagbedrag) = 1.078 × afname × p_dag − 0.527 × teruglevering × p_zon − 0.144 × afname`. `p_dag` is de gemiddelde all-in uurprijs van de dag, `p_zon` de met zonnestraling gewogen all-in prijs. Dit is de sterkste en meest verrassende bevinding: een afgenomen kWh kost in het Frank-dagbedrag ongeveer 1,08 × de all-in prijs min 14 cent, en een teruggeleverde kWh brengt ongeveer 0,53 × de all-in prijs op. Het waarom is niet onderzocht (de salderingsregeling en hoe de energiebelasting in het dagbedrag zit spelen vermoedelijk mee). Het is een empirische fit.
+4. Voor het deel van de dag dat al voorbij is gebruikt de pagina een aangenomen dagprofiel (`dagprofiel_afname` in `model.json`; **een aanname, niet uit data**) en de zonnestraling voor de teruglevering. Wat je zelf invult wordt omgerekend met de formule van functie 1.
+
+**Hoe goed is het? (leave-one-out backtest op de dagen met een echt Frank-bedrag, `data/backtest.json`)**
+- Kosten, hele keten (verbruik voorspeld uit weer, daarna kosten uit prijzen): zonder uitbijters gemiddelde fout 0.77 euro, RMSE 0.92 euro (n=22); op alle dagen inclusief mogelijke laaddagen RMSE 1.08 euro (n=27).
+- Kosten als het verbruik wél bekend is (alleen het prijsmodel): RMSE 0.34 euro, grootste fout 1.14 euro. De fout in de keten komt dus vooral uit de voorspelling van het verbruik, niet uit de prijzen.
+- De afwijking van de verbruiksvoorspelling zelf: afname gemiddeld 4.6 kWh (met laaddagen erbij), teruglevering gemiddeld 1.7 kWh.
+- De bandbreedte in de pagina is ± de RMSE van de keten zonder uitbijters. Voor vandaag met invoer wordt die kleiner naarmate de dag vordert.
+- Eerlijke conclusie: dit geeft een bruikbare orde van grootte (typisch ± 1 euro op een dagbedrag van 3 tot 10 euro), geen exacte voorspelling. Met uurdata van afname en teruglevering en met de laaddagen als vinkje zou het veel beter kunnen.
+
+**Wat nog niet gedaan is, en keuzes**
+- Dag 2026-11-10 is uitgesloten van de kalibratie: de cijfers waren van een onvolledige dag ("tot nu toe"). Dagen 6 tot en met 9 november staan wel in `dagen.csv` maar zonder Frank-bedrag; ze dragen alleen bij aan het verbruiksmodel. Vul het Frank-bedrag in zodra het bekend is.
+- Auto laden wordt niet als invoer behandeld. Verwachtingen gaan uit van een dag zonder laden. Een volgende stap kan een vinkje per dag in `dagen.csv` zijn (kolom `auto`), zodat die dagen expliciet worden weggelaten in plaats van statistisch.
+- Het weermodel gebruikt alleen gemiddelde temperatuur en dagsom van straling. Wind en bewolking gaven in de verkenning geen duidelijke verbetering. De historie is modeldata van Open-Meteo (KNMI HARMONIE), geen meetstation.
+- Het aantal datapunten is klein (27 met Frank-bedrag), de coëfficiënten kunnen verschuiven bij nieuwe data. Elke nieuwe dag in `dagen.csv` helpt. In december en later zijn temperatuur en zon heel anders dan in de kalibratieperiode (oktober, begin november); extrapoleren kan fout gaan.
+- De formule van functie 1 en het kostenmodel zijn niet hetzelfde: functie 1 rekent achteraf uit HW-cijfers (nauwkeurig tot enkele centen), het kostenmodel voorspelt vooruit.

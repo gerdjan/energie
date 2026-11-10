@@ -1,6 +1,6 @@
 # Energiekosten: HW naar Frank
 
-Statische pagina die HW-/P1-cijfers omrekent naar de verwachte kosten bij Frank Energie.
+Twee statische pagina's: `index.html` rekent HW-/P1-cijfers om naar de kosten bij Frank Energie, `verwachting.html` voorspelt de kosten van vandaag en morgen (weer, Frank-uurprijzen en een model). Data wordt dagelijks door een GitHub Action opgehaald.
 
 Formule: `Frank = HW - 0,165 x afname - 0,021 x teruglevering`
 
