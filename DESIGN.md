@@ -59,3 +59,29 @@ Sessies van AI-tools hebben vaak geen internet (DNS-fouten bij Open-Meteo en Fra
 - Werk `DESIGN.md` bij met wat je doet en besluit, zodat de volgende tool verder kan.
 - Test API-aanroepen echt voordat je zegt dat ze werken, en meld het eerlijk als iets niet bereikbaar is.
 - Commit in kleine stappen met duidelijke berichten.
+
+## 9. Status: data-pipeline (gebouwd en in productie, 10 november 2026)
+
+**Wat er is:**
+- `scripts/fetch_data.py`: haalt Frank-uurprijzen en weer op (alleen Python-standaardbibliotheek). `scripts/test_parse.py`: offline tests met nagemaakte antwoorden (draaien ook in de Action).
+- `.github/workflows/fetch-data.yml`: draait bij `workflow_dispatch`, bij een push op `scripts/**` of het workflowbestand, en dagelijks via cron op 05:00, 14:30 en 16:30 UTC (na ca. 15:00 Nederlandse tijd, zomer en winter). Commit het resultaat naar `main` met het ingebouwde `GITHUB_TOKEN`, ook na een mislukte fetch (zodat `status.json` altijd bijgewerkt wordt).
+- Uitvoer in `data/`: `prijzen.json` (uurprijzen), `weer.json` (uurweer), `status.json` (per bron welke endpoints zijn geprobeerd, HTTP-status, aantal records, fouten) en `data/raw/` (korte voorbeeldantwoorden).
+
+**Wat er werkt (geverifieerd in de eerste run, via `status.json`):**
+- **Frank:** `POST https://graphql.frankenergie.nl/` met de dagquery `marketPrices(date: $date)` waarbij `$date` als `String!` wordt doorgegeven (variant `day_str`). Levert 24 uurrecords per dag met `from`, `till`, `marketPrice`, `marketPriceTax`, `sourcingMarkupPrice`, `energyTaxPrice`. Prijzen voor morgen waren bij de eerste run (21:33 NL-tijd) beschikbaar. Niet gelukt: de bereikvariant `marketPricesElectricity(startDate, endDate)` en de dagquery met `Date!` gaven "Graphql validation error". Het script probeert alles in die volgorde en onthoudt wat werkt. De tweede endpoint (`frank-graphql-prod.graphcdn.app`) en de terugvalbronnen (Energy-Charts, EnergyZero) zijn in de eerste run niet nodig geweest en dus **niet getest**.
+- **Weer:** Open-Meteo forecast-endpoint met `models=knmi_seamless` (KNMI HARMONIE) en `past_days=60`, `forecast_days=4`. Alle 1536 uren (11 september tot en met 13 november) hadden geldige waarden. Per uur: temperatuur, globale straling, bewolking, wind (tijdzone Europe/Amsterdam). Let op: voor de historie is dit modeldata, geen meetstation.
+
+**Bevindingen over de prijzen (all_in = marketPrice + marketPriceTax + sourcingMarkupPrice + energyTaxPrice, in EUR/kWh, aanname dat de componenten zo bij elkaar horen):**
+- Opslag (`sourcingMarkupPrice`) is ca. 0,0182 per kWh en energiebelasting (`energyTaxPrice`) ca. 0,1109 per kWh, constant over de periode. De overige variatie zit in de marktprijs.
+- Gemiddelde all-in prijs per dag varieerde sterk: ca. 0,17 tot 0,19 op 10 en 24 oktober (de twee dagen met 29,5 en 33 kWh afname en lage Frank-kosten) en ca. 0,44 tot 0,54 in november. Dat past bij de eerdere vermoedens dat die oktoberdagen goedkoop waren, maar is nog niet statistisch getoetst.
+- **Nog niet onderzocht:** het verband tussen deze prijs en het verschil tussen HW en Frank (ca. 0,165 per kWh afname). Dat is de eerste vraag voor de kalibratie.
+
+**Bekende beperkingen en aandachtspunten:**
+- Geplande workflows in een publieke repo worden na ca. 60 dagen zonder repository-activiteit door GitHub uitgeschakeld. Of de dagelijkse data-commits van de Action dat voorkomen is niet geverifieerd. Controleer af en toe het tabblad Actions; bij uitschakeling is één klik op "Enable workflow" voldoende, of start hem handmatig via "Run workflow".
+- Of een Action-commit een nieuwe GitHub Pages-deployment triggert is nog niet gecontroleerd. Controleer dat zodra de pagina `verwachting.html` bestaat.
+- De Frank-API is niet officieel gedocumenteerd en kan zonder aankondiging veranderen. Een mislukte run schrijft de fout in `data/status.json` en laat de oude data staan.
+- De terugvalbronnen rekenen met geschatte opslag en belasting (`APPROX` in `fetch_data.py`, niet geverifieerd). Hun uitvoer is gemarkeerd met `approx: true`.
+
+**Handmatig starten:** GitHub, tabblad Actions, workflow "Data ophalen (weer en Frank-prijzen)", knop "Run workflow".
+
+**Nog te doen:** kalibratie en model (sectie 3 en 4 van `PROMPT.md`), de pagina `verwachting.html` en de koppeling met `index.html`.
