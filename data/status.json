@@ -1,6 +1,6 @@
 {
- "started": "2026-11-11T11:00:49+01:00",
- "finished": "2026-11-11T11:01:19+01:00",
+ "started": "2026-11-11T13:26:18+01:00",
+ "finished": "2026-11-11T13:26:52+01:00",
  "sources": {
   "frank": {
    "attempts": [
@@ -73,29 +73,20 @@
      "start": "2026-11-11",
      "end": "2026-11-13",
      "http": 200,
-     "records": 24,
-     "body": ""
-    },
-    {
-     "endpoint": "https://graphql.frankenergie.nl/",
-     "variant": "day_str",
-     "start": "2026-11-11",
-     "end": "2026-11-12",
-     "http": 200,
-     "records": 24,
+     "records": 48,
      "body": ""
     }
    ]
   },
   "prijzen": {
    "ok": true,
-   "hours_total": 1008,
+   "hours_total": 1032,
    "src_used": [
     "frank"
    ],
    "approx": false,
-   "tomorrow_hours": 0,
-   "tomorrow_available": false
+   "tomorrow_hours": 24,
+   "tomorrow_available": true
   },
   "weer": {
    "attempts": [
