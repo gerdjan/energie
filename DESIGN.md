@@ -111,3 +111,30 @@ Sessies van AI-tools hebben vaak geen internet (DNS-fouten bij Open-Meteo en Fra
 - Het weermodel gebruikt alleen gemiddelde temperatuur en dagsom van straling. Wind en bewolking gaven in de verkenning geen duidelijke verbetering. De historie is modeldata van Open-Meteo (KNMI HARMONIE), geen meetstation.
 - Het aantal datapunten is klein (27 met Frank-bedrag), de coëfficiënten kunnen verschuiven bij nieuwe data. Elke nieuwe dag in `dagen.csv` helpt. In december en later zijn temperatuur en zon heel anders dan in de kalibratieperiode (oktober, begin november); extrapoleren kan fout gaan.
 - De formule van functie 1 en het kostenmodel zijn niet hetzelfde: functie 1 rekent achteraf uit HW-cijfers (nauwkeurig tot enkele centen), het kostenmodel voorspelt vooruit.
+
+## 11. Status: laadplanner en prijsverwachting (gebouwd, 11 november 2026)
+
+**Vraag van de eigenaar:** bij een gewenste hoeveelheid te laden energie (bijvoorbeeld 40 kWh bij 3 kW) de beste uren in de komende 5 dagen kiezen, ook voor dagen waarvan Frank de prijzen nog niet heeft gepubliceerd.
+
+**Hoe het werkt**
+- Frank publiceert dagprijzen meestal rond 15:00 voor de volgende dag. Alles daarna is een verwachting.
+- `data/historie.json` (door `fetch_data.py`, incrementeel): per dag 24 uurwaarden van kale marktprijs (EUR/kWh, excl. btw), wind op 100 m, zonnestraling en temperatuur, vanaf 2025-10-01 (405 dagen). Prijzen komen van Energy-Charts (API `api.energy-charts.info/price?bzn=NL`), weer uit het Open-Meteo-archief (`archive-api.open-meteo.com`, ERA5). Frank krijgt voorrang waar Frank prijzen heeft. **Geverifieerd:** over 1008 overlappende uren is Franks `marketPrice` gelijk aan de Energy-Charts-prijs (gemiddeld verschil 0,0, maximaal 0,00001 EUR/kWh). Energy-Charts levert kwartierprijzen sinds de overgang naar 15 minuten; die worden naar uren gemiddeld.
+- `weer.json` heeft nu 7 dagen vooruit (KNMI HARMONIE via `knmi_seamless`, complete data tot en met 17 november in de eerste run) plus wind op 100 m. Gaten worden aangevuld met het standaardmodel (in de eerste run niet nodig).
+- `scripts/calibrate.py` (numpy, geïnstalleerd in de workflow) fit per horizon k = 1 tot 5 dagen vooruit een lineair model voor de uurlijkse kale marktprijs: intercept per uur, gemiddelde prijs van de laatste 7 en 30 bekende dagen (op moment van voorspellen), wind100 daggemiddelde, temperatuur daggemiddelde, weekend, straling in dat uur. Uitvoer: `model.json` onder `prijsmodel` (coëfficiënten, onzekerheid per horizon, omrekening van kale prijs naar all-in prijs: all-in = (1 + btw) × markt + toeslag, uit het laatste Frank-uur, nu btw 0,21 en toeslag 0,129 EUR/kWh = opslag plus energiebelasting).
+- Effectieve kosten van een extra kWh afname = `k_p × all-in prijs − k_c` (uit sectie 10). De planner rangschikt uren daarop en kiest de goedkoopste, rekent met het hoogste vermogen in de goedkoopste uren en het restant in het duurste gekozen uur, en toont het verschil met direct beginnen. Optie "voorzichtig" telt 0,5 keer de onzekerheid bij verwachte uren op.
+
+**Hoe goed is het? (rolling-origin backtest op de laatste 150 dagen, `data/backtest.json`)**
+- Gemiddelde fout van de uurprijs (kale marktprijs, ct/kWh): 3.49 op 1 dag vooruit, 3.86 op 3 dagen, 4.03 op 5 dagen. Simpele alternatieven op 5 dagen: gemiddeld uurprofiel geschaald naar recent niveau 4.74, alleen recent niveau 6.19.
+- Planner (14 uren uit 5 dagen, 73 vensters): de door het model gekozen uren kostten gemiddeld 4.98 ct kale marktprijs; het beste achteraf was 3.59 ct; alleen het uurprofiel 6.59 ct; een gemiddeld uur 14.48 ct; direct beginnen 13.16 ct. Het model haalt dus ruim het grootste deel van het mogelijke voordeel binnen.
+- **Belangrijke kanttekening:** de test gebruikt het werkelijke (ERA5-)weer van de testdagen alsof het perfect voorspeld was. Met een echte weersverwachting is de prijsvoorspelling minder nauwkeurig, zeker op 4 tot 5 dagen vooruit. Dit is niet gemeten. Een volgende stap is de opgeslagen weersvoorspellingen van de Action te bewaren en daarmee te testen.
+- Het model is lineair, dus pieken en dalen (negatieve prijzen, schaarste) worden onderschat.
+
+**Wat de planner niet weet**
+- Niet hoe vol de accu is, wanneer de auto aangesloten staat of wanneer hij klaar moet zijn, behalve de gekozen einddag.
+- Eigen zonnestroom op zonnige uren (die je net zo goed zelf kunt gebruiken) wordt niet apart meegerekend.
+- De uren hoeven niet aaneengesloten te zijn. Of de lader kan pauzeren hangt af van de lader (bijvoorbeeld via Home Assistant).
+- Het schakelen zelf gebeurt niet door deze app.
+
+**Open punten**
+- De planner kan opnieuw worden uitgevoerd zodra Frank om ca. 15:00 de prijzen van morgen heeft gepubliceerd; de pagina doet dat vanzelf bij elke keer openen (de Action draait na 15:00 NL-tijd in zomer en winter).
+- Een volgende stap: weersvoorspellingen archiveren voor een eerlijker backtest, en laaddagen als kolom in `dagen.csv` om de verbruiksvoorspelling te verbeteren.
