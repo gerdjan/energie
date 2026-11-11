@@ -34,6 +34,14 @@ svg{width:100%;height:auto;display:block;margin-top:12px}
 svg text{fill:var(--mute);font-size:10px}
 .sum{font-size:.9rem;margin-top:6px}
 details summary{cursor:pointer;font-weight:600}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 10px;margin-top:3px}
+.chk{display:flex;gap:8px;align-items:flex-start;margin-top:10px;font-size:.9rem;color:var(--ink)}
+.chk input{width:auto;margin:3px 0 0}
+.sched{margin:12px 0 0;padding:0;list-style:none}
+.sched li{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-top:1px solid var(--line);font-variant-numeric:tabular-nums;font-size:.95rem}
+.sched li span:first-child{color:var(--mute)}
+.tag{font-size:.75rem;color:var(--mute);margin-left:6px}
 </style>
 </head>
 <body>
@@ -64,6 +72,23 @@ details summary{cursor:pointer;font-weight:600}
   <div class="rows" id="tmRows"></div>
   <p class="note" id="tmNote"></p>
   <div id="tmChart"></div>
+</section>
+
+<section class="card" id="plan">
+  <h2>Auto laden: beste uren</h2>
+  <div class="lbl">Verwachte kosten voor deze lading</div>
+  <div class="big" id="plBig">–</div>
+  <div class="band" id="plBand"></div>
+  <div class="grid2">
+    <label>Te laden (kWh)<input id="pk" inputmode="decimal" value="40" autocomplete="off"></label>
+    <label>Laadvermogen (kW)<input id="pw" inputmode="decimal" value="3" autocomplete="off"></label>
+  </div>
+  <label style="margin-top:8px">Klaar uiterlijk aan het einde van<select id="pd"></select></label>
+  <label class="chk"><input type="checkbox" id="pr"><span>Voorzichtig plannen: liever uren waarvan de prijs al vaststaat</span></label>
+  <div class="rows" id="plRows"></div>
+  <ul class="sched" id="plSched"></ul>
+  <div id="plChart"></div>
+  <p class="note" id="plNote"></p>
 </section>
 
 <section class="card">
@@ -220,6 +245,133 @@ function renderTomorrow(){
   rows($("tmRows"),list);
 }
 
+
+// ----- laadplanner -----
+var PM=null;
+function dayName(d){return new Date(d+"T12:00:00Z").toLocaleDateString("nl-NL",{weekday:"short",day:"numeric",month:"short",timeZone:"UTC"})}
+function dayNameLong(d){return new Date(d+"T12:00:00Z").toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"long",timeZone:"UTC"})}
+function dayDiff(a,b){return Math.round((new Date(b+"T12:00:00Z")-new Date(a+"T12:00:00Z"))/864e5)}
+var PBY=null,KNOWN_DAYS=null;
+function indexPrices(){
+  PBY={};var cnt={},sums={};
+  P.forEach(function(h){PBY[h.t]=h;var d=h.t.slice(0,10);cnt[d]=(cnt[d]||0)+1;sums[d]=(sums[d]||0)+h.market});
+  KNOWN_DAYS=Object.keys(cnt).filter(function(d){return cnt[d]>=23}).sort().map(function(d){return{d:d,m:sums[d]/cnt[d]}});
+}
+function levels(){
+  var n=KNOWN_DAYS.length;if(n<30)return null;
+  var m=function(k){return mean(KNOWN_DAYS.slice(n-k).map(function(x){return x.m}))};
+  return{last:KNOWN_DAYS[n-1].d,L7:m(7),L30:m(30)};
+}
+function weatherDay(d){
+  var w=W.filter(function(h){return h.t.indexOf(d)===0&&h.temp!=null});
+  if(w.length<20)return null;
+  var wind=w.map(function(h){return h.wind100!=null?h.wind100:(h.wind!=null?h.wind*1.3:null)}).filter(function(x){return x!=null});
+  if(!wind.length)return null;
+  var rad={};w.forEach(function(h){rad[+h.t.slice(11,13)]=(h.radiation||0)/1000});
+  var dow=new Date(d+"T12:00:00Z").getUTCDay();
+  return{wm:mean(wind),tm:mean(w.map(function(h){return h.temp})),wk:(dow===0||dow===6)?1:0,rad:rad};
+}
+function forecastHour(date,h,lv,cache){
+  if(!PM||!PM.k)return null;
+  var k=Math.min(5,Math.max(1,dayDiff(lv.last,date)));
+  var wd=cache[date]===undefined?(cache[date]=weatherDay(date)):cache[date];
+  if(!wd)return null;
+  var mdl=PM.k[String(k)];if(!mdl)return null;
+  var c=mdl.coef,mh=c[h]+c[24]*lv.L7+c[25]*lv.L30+c[26]*wd.wm+c[27]*wd.tm+c[28]*wd.wk+c[29]*(wd.rad[h]||0);
+  var cv=PM.omrekening||{btw:0.21,toeslag:0.129};
+  var allin=(1+cv.btw)*mh+cv.toeslag;
+  return{all_in:allin,sd:M.kosten.k_p*(1+cv.btw)*mdl.sd};
+}
+function buildSlots(days){
+  var now=nlNow(),start=now.m>0?now.h+1:now.h,slots=[],lv=levels(),cache={},missing=0;
+  for(var di=0;di<=days;di++){
+    var d=addDay(now.date,di);
+    for(var h=0;h<24;h++){
+      if(di===0&&h<start)continue;
+      var t=d+"T"+String(h).padStart(2,"0")+":00",kp=PBY[t],s;
+      if(kp){s={all_in:kp.all_in,sd:0,known:true}}
+      else if(lv){var f=forecastHour(d,h,lv,cache);if(!f){missing++;continue}s={all_in:f.all_in,sd:f.sd,known:false}}
+      else{missing++;continue}
+      s.t=t;s.d=d;s.h=h;s.eff=effPrice(s.all_in);s.sde=s.sd;slots.push(s);
+    }
+  }
+  return{slots:slots,missing:missing,hasModel:!!(lv&&PM&&PM.k)};
+}
+function alloc(chosen,kwh,kw){
+  // goedkoopste uren krijgen vol vermogen; het restant komt in het duurste gekozen uur
+  var byPrice=chosen.slice().sort(function(a,b){return a.eff-b.eff}),left=kwh;
+  byPrice.forEach(function(s){s.e=Math.min(kw,left);left-=s.e});
+  return left<-1e-9?0:left;
+}
+function renderPlanner(){
+  var kwh=parseNum($("pk").value),kw=parseNum($("pw").value),days=+$("pd").value,risk=$("pr").checked;
+  try{localStorage.setItem("verwachting-laden",JSON.stringify({k:$("pk").value,w:$("pw").value,d:$("pd").value,r:risk}))}catch(x){}
+  var big=$("plBig"),band=$("plBand"),rowsEl=$("plRows"),sched=$("plSched"),note=$("plNote");
+  sched.innerHTML="";$("plChart").innerHTML="";rows(rowsEl,[]);band.textContent="";
+  if(!(kwh>0)||!(kw>0)){big.textContent="–";note.textContent="Vul het aantal kWh en het laadvermogen in.";return}
+  var b=buildSlots(days),slots=b.slots,count=Math.ceil(kwh/kw-1e-9);
+  if(slots.length<count){
+    big.textContent="–";
+    note.textContent="Er zijn te weinig uren met bekende of verwachte prijzen om "+n0.format(kwh)+" kWh te laden. Kies een latere eindtijd of een hoger laadvermogen.";
+    return;
+  }
+  var lam=risk?0.5:0;
+  var ranked=slots.slice().sort(function(a,b){return (a.eff+lam*a.sde)-(b.eff+lam*b.sde)});
+  var chosen=ranked.slice(0,count);alloc(chosen,kwh,kw);
+  var chosenSet={};chosen.forEach(function(s){chosenSet[s.t]=1});
+  var total=sum(chosen.map(function(s){return s.e*s.eff})),unc=sum(chosen.map(function(s){return s.e*s.sde}));
+  // meteen beginnen: de eerste uren vanaf nu
+  var now5=slots.slice(0,count).map(function(s){return{eff:s.eff,e:0}});alloc(now5,kwh,kw);
+  var immediate=sum(now5.map(function(s){return s.e*s.eff}));
+  var avgAll=kwh*mean(slots.map(function(s){return s.eff}));
+  var nKnown=chosen.filter(function(s){return s.known}).length;
+  big.textContent=eur.format(total);
+  band.textContent=unc>0.005?"ongeveer "+eur.format(Math.max(-99,total-unc))+" tot "+eur.format(total+unc):"op basis van vaststaande prijzen";
+  var rl=[["Gemiddelde prijs",n1.format(total/kwh*100)+" ct per kWh"],["Aantal uren",count+" uur ("+nKnown+" met vaste prijs, "+(count-nKnown)+" verwacht)"],
+          ["Meteen beginnen",eur.format(immediate)+(immediate>total?" (je bespaart "+eur.format(immediate-total)+")":"")],
+          ["Gemiddeld uur in dit tijdvak",eur.format(avgAll)]];
+  rows(rowsEl,rl);
+  // rooster per dag, aaneengesloten blokken
+  var byDay={};chosen.forEach(function(s){(byDay[s.d]=byDay[s.d]||[]).push(s)});
+  Object.keys(byDay).sort().forEach(function(d){
+    var hs=byDay[d].sort(function(a,b){return a.h-b.h}),blocks=[],cur=null;
+    hs.forEach(function(s){if(cur&&s.h===cur.end){cur.end=s.h+1;cur.known=cur.known&&s.known;cur.kwh+=s.e}else{cur={start:s.h,end:s.h+1,known:s.known,kwh:s.e};blocks.push(cur)}});
+    var li=document.createElement("li"),a=document.createElement("span"),c=document.createElement("span");
+    a.textContent=dayName(d);
+    c.textContent=blocks.map(function(x){return hhmm(x.start)+"–"+hhmm(x.end%24===0&&x.end>0?24:x.end).replace("24:00","24:00")+(x.known?"":" ~")}).join(", ");
+    li.appendChild(a);li.appendChild(c);sched.appendChild(li);
+  });
+  // grafiek over alle uren
+  var all=slots.map(function(s){return s.eff}),lo=Math.min(0,Math.min.apply(null,all)),hi=Math.max.apply(null,all),Wd=600,H=140,pb=16,pt=6,bw=Wd/slots.length,sc=(H-pb-pt)/((hi-lo)||1),zero=pt+(hi-0)*sc;
+  var svg='<svg viewBox="0 0 '+Wd+' '+H+'" role="img" aria-label="Prijs per uur voor de komende dagen, gekozen uren gemarkeerd">',lastD="";
+  slots.forEach(function(s,i){
+    var y=pt+(hi-Math.max(0,s.eff))*sc,hg=Math.max(1,Math.abs(s.eff)*sc);if(s.eff<0)y=zero;
+    var col=chosenSet[s.t]?"var(--good)":"var(--line)";
+    svg+='<rect x="'+(i*bw).toFixed(2)+'" y="'+y.toFixed(1)+'" width="'+Math.max(1,bw-0.6).toFixed(2)+'" height="'+hg.toFixed(1)+'" fill="'+col+'" opacity="'+(s.known?1:0.6)+'"><title>'+dayName(s.d)+" "+hhmm(s.h)+": "+n1.format(s.eff*100)+" ct/kWh"+(s.known?"":" (verwacht)")+'</title></rect>';
+    if(s.d!==lastD){lastD=s.d;svg+='<text x="'+(i*bw+2).toFixed(1)+'" y="'+(H-3)+'">'+dayName(s.d).split(" ")[0]+'</text><line x1="'+(i*bw).toFixed(1)+'" x2="'+(i*bw).toFixed(1)+'" y1="'+pt+'" y2="'+(H-pb)+'" stroke="var(--line)"/>'}
+  });
+  svg+='</svg>';
+  var t=document.createElement("div");t.innerHTML=svg;$("plChart").appendChild(t);
+  var txt="Groen: gekozen uren. Lichtere balken: prijzen die nog niet vaststaan (verwachting). Een ~ achter een tijdblok betekent dat minstens één uur daarin een verwachting is. De uren hoeven niet aaneengesloten te zijn, mits je lader kan pauzeren (bijvoorbeeld via Home Assistant).";
+  if(!b.hasModel)txt="Er is nog geen prijsmodel beschikbaar, dus alleen uren met vaststaande prijzen zijn meegenomen. "+txt;
+  else if(b.missing)txt+=" Voor "+b.missing+" uur ontbreekt een weerverwachting, die zijn niet meegenomen.";
+  var q=PM&&M.prijsmodel&&M.prijsmodel.kwaliteit;
+  if(q){var pl=q.planner;txt+=" In een terugkijkende test op de laatste "+q.testperiode_dagen+" dagen kostten de uren die dit model koos gemiddeld "+n1.format(pl.model)+" ct kale marktprijs per kWh; het beste achteraf was "+n1.format(pl.optimum_achteraf)+" ct, een gemiddeld uur "+n1.format(pl.gemiddeld_uur)+" ct en meteen beginnen "+n1.format(pl.meteen_beginnen)+" ct."}
+  txt+=" Let op: die test gebruikte het werkelijke weer van die dagen alsof het perfect voorspeld was. Met een echte weersverwachting, zeker op 4 tot 5 dagen vooruit, is de uitkomst minder nauwkeurig.";
+  txt+=" Kosten zijn de verwachte bijdrage aan het dagbedrag van Frank (eigen zonnestroom op zonnige uren is hier niet in verrekend).";
+  note.textContent=txt;
+}
+function initPlanner(){
+  PM=(M&&M.prijsmodel)||null;indexPrices();
+  var now=nlNow(),sel=$("pd");sel.innerHTML="";
+  for(var i=1;i<=5;i++){var o=document.createElement("option");o.value=i;o.textContent=dayNameLong(addDay(now.date,i));sel.appendChild(o)}
+  sel.value="5";
+  try{var s=JSON.parse(localStorage.getItem("verwachting-laden"));if(s){if(s.k)$("pk").value=s.k;if(s.w)$("pw").value=s.w;if(s.d)sel.value=s.d;$("pr").checked=!!s.r}}catch(x){}
+  ["pk","pw"].forEach(function(i){$(i).addEventListener("input",renderPlanner)});
+  sel.addEventListener("change",renderPlanner);$("pr").addEventListener("change",renderPlanner);
+  renderPlanner();
+}
+
 function about(){
   var el=$("about");el.innerHTML="";
   function p(t){var x=document.createElement("p");x.textContent=t;el.appendChild(x)}
@@ -244,7 +396,7 @@ Promise.all([get("data/model.json"),get("data/prijzen.json"),get("data/weer.json
   M=r[0];P=r[1].hours;W=r[2].hourly;ST=r[3];
   try{var s=JSON.parse(localStorage.getItem("verwachting-"+nlNow().date));if(s){$("ia").value=s.a||"";$("ie").value=s.e||"";$("ih").value=s.h||""}}catch(x){}
   ["ia","ie","ih"].forEach(function(i){$(i).addEventListener("input",renderToday)});
-  alerts();renderToday();renderTomorrow();about();
+  alerts();renderToday();renderTomorrow();initPlanner();about();
 }).catch(function(err){
   var d=document.createElement("div");d.className="alert";d.textContent="De gegevens konden niet worden geladen ("+err.message+"). Open deze pagina via de website en niet als los bestand.";$("alerts").appendChild(d);
 });
