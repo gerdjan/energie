@@ -253,55 +253,193 @@ def run_prices():
 
 
 # ---------- weer ----------
-HOURLY = "temperature_2m,shortwave_radiation,cloud_cover,wind_speed_10m"
+HOURLY = "temperature_2m,shortwave_radiation,cloud_cover,wind_speed_10m,wind_speed_100m"
 
 
 def parse_weather(j):
     h = j["hourly"]
     out = []
     for i, t in enumerate(h["time"]):
+        w100 = h.get("wind_speed_100m")
         out.append({"t": t, "temp": h["temperature_2m"][i], "radiation": h["shortwave_radiation"][i],
-                    "cloud": h["cloud_cover"][i], "wind": h["wind_speed_10m"][i]})
+                    "cloud": h["cloud_cover"][i], "wind": h["wind_speed_10m"][i],
+                    "wind100": w100[i] if w100 else None})
     return out
+
+
+def weather_call(model, params):
+    p = dict(params)
+    if model:
+        p["models"] = model
+    url = "https://api.open-meteo.com/v1/forecast?" + urllib.parse.urlencode(p)
+    code, txt = http("GET", url)
+    rows = []
+    try:
+        rows = parse_weather(json.loads(txt))
+    except Exception:
+        pass
+    valid = [r for r in rows if r["temp"] is not None]
+    log("weer", endpoint=url, model=model or "standaard", http=code, records=len(rows), valid=len(valid), body=txt if not valid else "")
+    return rows, valid, txt
 
 
 def run_weather():
     params = {"latitude": LAT, "longitude": LON, "hourly": HOURLY, "timezone": "Europe/Amsterdam",
-              "past_days": 60, "forecast_days": 4}
+              "past_days": 60, "forecast_days": 7}
+    rows, used = None, None
     for model in ("knmi_seamless", None):
-        p = dict(params)
-        if model:
-            p["models"] = model
-        url = "https://api.open-meteo.com/v1/forecast?" + urllib.parse.urlencode(p)
-        code, txt = http("GET", url)
+        r, valid, txt = weather_call(model, params)
+        if r and len(valid) > 0.5 * len(r):
+            rows, used = r, model
+            save_raw("weer_sample.json", txt)
+            break
+    if rows is None:
+        STATUS["sources"]["weer"] = {**STATUS["sources"].get("weer", {}), "ok": False, "note": "geen model werkte, oude data blijft staan"}
+        return
+    # ontbrekende waarden (bv. buiten de horizon van het KNMI-model) aanvullen met het standaardmodel
+    keys = ("temp", "radiation", "cloud", "wind", "wind100")
+    missing = sum(1 for r in rows if any(r[k] is None for k in keys))
+    filled = 0
+    if missing and used:
+        r2, valid2, _ = weather_call(None, params)
+        by = {x["t"]: x for x in r2}
+        for r in rows:
+            o = by.get(r["t"])
+            if o and any(r[k] is None for k in keys):
+                for k in keys:
+                    if r[k] is None and o[k] is not None:
+                        r[k] = o[k]
+                filled += 1
+    json.dump({"fetched_at": now().isoformat(timespec="seconds"), "model": used or "open-meteo standaard",
+               "tz": "Europe/Amsterdam", "location": [LAT, LON], "hourly": rows},
+              open(os.path.join(DATA, "weer.json"), "w"), indent=1)
+    last_ok = max((r["t"] for r in rows if all(r[k] is not None for k in keys)), default=None)
+    STATUS["sources"]["weer"] = {**STATUS["sources"]["weer"], "ok": True, "model_used": used or "standaard", "hours": len(rows),
+                                 "hours_with_gaps_before_fill": missing, "hours_filled_from_default": filled, "last_complete_hour": last_ok}
+
+
+# ---------- historie voor het prijsmodel ----------
+HIST_START = dt.date(2025, 10, 1)
+
+
+def ec_hourly(start, end):
+    """Kale marktprijs (EUR/kWh) per lokaal uur uit Energy-Charts, voor de periode start..end."""
+    url = "https://api.energy-charts.info/price?bzn=NL&start=%s&end=%s" % (start.isoformat(), end.isoformat())
+    code, txt = http("GET", url, timeout=60)
+    recs = []
+    try:
+        j = json.loads(txt)
+        for ts, p in zip(j["unix_seconds"], j["price"]):
+            if p is None:
+                continue
+            m = p / 1000.0
+            recs.append({"from": dt.datetime.fromtimestamp(ts, dt.timezone.utc).isoformat(), "market": m, "market_tax": None,
+                         "markup": None, "energy_tax": None, "all_in": m, "src": "energy-charts", "approx": True})
+    except Exception:
+        pass
+    log("historie_prijzen", endpoint=url, http=code, records=len(recs), body=txt if not recs else "")
+    if recs:
+        save_raw("energycharts_hist_sample.json", txt)
+    return {h["t"]: h["market"] for h in hourly(recs)}
+
+
+def archive_weather(start, end):
+    out = {}
+    d = start
+    while d <= end:
+        e = min(end, d + dt.timedelta(days=150))
+        url = "https://archive-api.open-meteo.com/v1/archive?" + urllib.parse.urlencode(
+            {"latitude": LAT, "longitude": LON, "start_date": d.isoformat(), "end_date": e.isoformat(),
+             "hourly": HOURLY, "timezone": "Europe/Amsterdam"})
+        code, txt = http("GET", url, timeout=90)
         rows = []
         try:
             rows = parse_weather(json.loads(txt))
         except Exception:
             pass
-        valid = [r for r in rows if r["temp"] is not None]
-        log("weer", endpoint=url, model=model or "standaard", http=code, records=len(rows), valid=len(valid), body=txt if not valid else "")
-        if rows and len(valid) > 0.5 * len(rows):
-            save_raw("weer_sample.json", txt)
-            json.dump({"fetched_at": now().isoformat(timespec="seconds"), "model": model or "open-meteo standaard",
-                       "tz": "Europe/Amsterdam", "location": [LAT, LON], "hourly": rows},
-                      open(os.path.join(DATA, "weer.json"), "w"), indent=1)
-            STATUS["sources"]["weer"] = {**STATUS["sources"]["weer"], "ok": True, "model_used": model or "standaard", "hours": len(rows)}
-            return
-    STATUS["sources"]["weer"] = {**STATUS["sources"].get("weer", {}), "ok": False, "note": "geen model werkte, oude data blijft staan"}
+        log("historie_weer", endpoint=url, http=code, records=len(rows), body=txt if not rows else "")
+        for r in rows:
+            out[r["t"]] = r
+        d = e + dt.timedelta(days=1)
+    return out
+
+
+def run_history():
+    """Bouwt data/historie.json: per dag 24 uurwaarden van kale marktprijs, wind (100 m), straling en temperatuur.
+    Incrementeel: bestaande dagen blijven staan, alleen ontbrekende dagen en de laatste 8 dagen worden (opnieuw) gedaan."""
+    path = os.path.join(DATA, "historie.json")
+    old = {}
+    try:
+        old = json.load(open(path))["days"]
+    except Exception:
+        pass
+    today = now().date()
+    need = []
+    d = HIST_START
+    while d < today:
+        if d.isoformat() not in old or d >= today - dt.timedelta(days=8):
+            need.append(d)
+        d += dt.timedelta(days=1)
+    if not need:
+        STATUS["sources"]["historie"] = {"ok": True, "days": len(old), "new": 0}
+        return
+    lo, hi = need[0], need[-1]
+    market = ec_hourly(lo, hi + dt.timedelta(days=1))
+    # Frank heeft voorrang waar die er is; vergelijk beide op de overlap
+    frank_m, diffs = {}, []
+    try:
+        for h in json.load(open(os.path.join(DATA, "prijzen.json")))["hours"]:
+            if h["src"] == "frank":
+                frank_m[h["t"]] = h["market"]
+    except Exception:
+        pass
+    for t, m in frank_m.items():
+        if t in market:
+            diffs.append(m - market[t])
+    for t, m in frank_m.items():
+        market[t] = m
+    wx = {}
+    cut = today - dt.timedelta(days=7)
+    older = [x for x in need if x < cut]
+    if older:
+        wx.update(archive_weather(older[0], older[-1]))
+    try:
+        for r in json.load(open(os.path.join(DATA, "weer.json")))["hourly"]:
+            if r["t"][:10] >= cut.isoformat() or r["t"] not in wx:
+                wx[r["t"]] = r
+    except Exception:
+        pass
+    days = dict(old)
+    added, skipped = 0, 0
+    for d in need:
+        ds = d.isoformat()
+        hs = ["%sT%02d:00" % (ds, h) for h in range(24)]
+        rows = [wx.get(h) for h in hs]
+        if not all(h in market for h in hs) or not all(r and all(r[k] is not None for k in ("temp", "radiation", "wind100")) for r in rows):
+            skipped += 1
+            continue
+        days[ds] = {"m": [round(market[h], 5) for h in hs], "w": [round(r["wind100"], 1) for r in rows],
+                    "r": [round(r["radiation"]) for r in rows], "t": [round(r["temp"], 1) for r in rows]}
+        added += 1
+    json.dump({"updated": now().isoformat(timespec="seconds"), "unit": "EUR/kWh (kale marktprijs, excl. btw)", "start": HIST_START.isoformat(),
+               "days": {k: days[k] for k in sorted(days)}}, open(path, "w"), separators=(",", ":"))
+    STATUS["sources"]["historie"] = {"ok": len(days) > 30, "days": len(days), "new_or_refreshed": added, "skipped_incomplete": skipped,
+        "first_day": min(days) if days else None, "last_day": max(days) if days else None,
+        "frank_minus_energycharts_mean_eur_kwh": (round(sum(diffs) / len(diffs), 5) if diffs else None), "overlap_hours": len(diffs),
+        "frank_minus_energycharts_max_abs": (round(max(abs(x) for x in diffs), 5) if diffs else None)}
 
 
 def main():
     os.makedirs(RAW, exist_ok=True)
     STATUS["started"] = now().isoformat(timespec="seconds")
-    for fn in (run_prices, run_weather):
+    for fn in (run_prices, run_weather, run_history):
         try:
             fn()
         except Exception as e:
             STATUS["sources"].setdefault(fn.__name__, {})["fatal"] = repr(e)
     STATUS["finished"] = now().isoformat(timespec="seconds")
     json.dump(STATUS, open(os.path.join(DATA, "status.json"), "w"), indent=1)
-    ok = all(STATUS["sources"].get(k, {}).get("ok") for k in ("prijzen", "weer"))
+    ok = all(STATUS["sources"].get(k, {}).get("ok") for k in ("prijzen", "weer", "historie"))
     print(json.dumps({k: v.get("ok") for k, v in STATUS["sources"].items()}))
     return 0 if ok else 1
 

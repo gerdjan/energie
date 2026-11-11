@@ -15,7 +15,7 @@ assert len(h) == 1 and h[0]["t"] == "2026-11-11T00:00" and abs(h[0]["all_in"] - 
 assert fd.to_local("2026-07-01T10:00:00Z").hour == 12   # zomertijd
 w = fd.parse_weather({"hourly": {"time": ["2026-11-10T00:00"], "temperature_2m": [5.1], "shortwave_radiation": [0],
                                  "cloud_cover": [80], "wind_speed_10m": [12]}})
-assert w[0]["temp"] == 5.1
+assert w[0]["temp"] == 5.1 and w[0]["wind100"] is None
 import calibrate as cal
 c = cal.ols([[1, 0], [1, 1], [1, 2], [1, 3]], [1, 3, 5, 7])
 assert abs(c[0] - 1) < 1e-9 and abs(c[1] - 2) < 1e-9, c
