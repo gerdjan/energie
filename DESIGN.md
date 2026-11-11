@@ -138,3 +138,5 @@ Sessies van AI-tools hebben vaak geen internet (DNS-fouten bij Open-Meteo en Fra
 **Open punten**
 - De planner kan opnieuw worden uitgevoerd zodra Frank om ca. 15:00 de prijzen van morgen heeft gepubliceerd; de pagina doet dat vanzelf bij elke keer openen (de Action draait na 15:00 NL-tijd in zomer en winter).
 - Een volgende stap: weersvoorspellingen archiveren voor een eerlijker backtest, en laaddagen als kolom in `dagen.csv` om de verbruiksvoorspelling te verbeteren.
+
+**Weergave van prijzen (aangepast 11 november 2026):** de grafieken en het rooster tonen all-in prijzen (all-in = (1 + btw) × markt + toeslag, dus inclusief energiebelasting, opslag en btw, zoals de Frank-app). De eerste versie toonde de "effectieve prijs" (`k_p × all-in − k_c`), wat voor de eigenaar verwarrend was. De uren worden nog steeds gerangschikt op prijs; dat is voor all-in en effectieve prijs dezelfde volgorde. De totale kosten in de planner zijn nu kWh × all-in prijs; de bijdrage aan het Frank-dagbedrag (effectieve prijs) staat als aparte rij. Backtestcijfers in de tekst op de pagina worden omgerekend van kale marktprijs naar all-in (maal 1 + btw, plus de toeslag).
