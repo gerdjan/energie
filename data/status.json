@@ -1,6 +1,6 @@
 {
- "started": "2026-11-11T10:56:36+01:00",
- "finished": "2026-11-11T10:58:06+01:00",
+ "started": "2026-11-11T11:00:49+01:00",
+ "finished": "2026-11-11T11:01:19+01:00",
  "sources": {
   "frank": {
    "attempts": [
@@ -118,9 +118,9 @@
   "historie_prijzen": {
    "attempts": [
     {
-     "endpoint": "https://api.energy-charts.info/price?bzn=NL&start=2025-10-01&end=2026-11-11",
+     "endpoint": "https://api.energy-charts.info/price?bzn=NL&start=2026-03-29&end=2026-11-11",
      "http": 200,
-     "records": 39076,
+     "records": 21888,
      "body": ""
     }
    ]
@@ -128,21 +128,15 @@
   "historie_weer": {
    "attempts": [
     {
-     "endpoint": "https://archive-api.open-meteo.com/v1/archive?latitude=52.7&longitude=6.19&start_date=2025-10-01&end_date=2026-02-28&hourly=temperature_2m%2Cshortwave_radiation%2Ccloud_cover%2Cwind_speed_10m%2Cwind_speed_100m&timezone=Europe%2FAmsterdam",
+     "endpoint": "https://archive-api.open-meteo.com/v1/archive?latitude=52.7&longitude=6.19&start_date=2026-03-29&end_date=2026-08-26&hourly=temperature_2m%2Cshortwave_radiation%2Ccloud_cover%2Cwind_speed_10m%2Cwind_speed_100m&timezone=Europe%2FAmsterdam",
      "http": 200,
      "records": 3624,
      "body": ""
     },
     {
-     "endpoint": "https://archive-api.open-meteo.com/v1/archive?latitude=52.7&longitude=6.19&start_date=2026-03-01&end_date=2026-07-29&hourly=temperature_2m%2Cshortwave_radiation%2Ccloud_cover%2Cwind_speed_10m%2Cwind_speed_100m&timezone=Europe%2FAmsterdam",
+     "endpoint": "https://archive-api.open-meteo.com/v1/archive?latitude=52.7&longitude=6.19&start_date=2026-08-27&end_date=2026-11-03&hourly=temperature_2m%2Cshortwave_radiation%2Ccloud_cover%2Cwind_speed_10m%2Cwind_speed_100m&timezone=Europe%2FAmsterdam",
      "http": 200,
-     "records": 3624,
-     "body": ""
-    },
-    {
-     "endpoint": "https://archive-api.open-meteo.com/v1/archive?latitude=52.7&longitude=6.19&start_date=2026-07-30&end_date=2026-11-03&hourly=temperature_2m%2Cshortwave_radiation%2Ccloud_cover%2Cwind_speed_10m%2Cwind_speed_100m&timezone=Europe%2FAmsterdam",
-     "http": 200,
-     "records": 2328,
+     "records": 1656,
      "body": ""
     }
    ]
@@ -150,7 +144,7 @@
   "historie": {
    "ok": true,
    "days": 405,
-   "new_or_refreshed": 405,
+   "new_or_refreshed": 8,
    "skipped_incomplete": 1,
    "first_day": "2025-10-01",
    "last_day": "2026-11-10",
