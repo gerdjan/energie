@@ -1,6 +1,6 @@
 {
- "started": "2026-11-10T21:40:29+01:00",
- "finished": "2026-11-10T21:40:55+01:00",
+ "started": "2026-11-11T10:56:36+01:00",
+ "finished": "2026-11-11T10:58:06+01:00",
  "sources": {
   "frank": {
    "attempts": [
@@ -62,7 +62,16 @@
      "endpoint": "https://graphql.frankenergie.nl/",
      "variant": "day_str",
      "start": "2026-11-10",
-     "end": "2026-11-11",
+     "end": "2026-11-12",
+     "http": 200,
+     "records": 48,
+     "body": ""
+    },
+    {
+     "endpoint": "https://graphql.frankenergie.nl/",
+     "variant": "day_str",
+     "start": "2026-11-11",
+     "end": "2026-11-13",
      "http": 200,
      "records": 24,
      "body": ""
@@ -70,10 +79,10 @@
     {
      "endpoint": "https://graphql.frankenergie.nl/",
      "variant": "day_str",
-     "start": "2026-11-10",
+     "start": "2026-11-11",
      "end": "2026-11-12",
      "http": 200,
-     "records": 48,
+     "records": 24,
      "body": ""
     }
    ]
@@ -85,23 +94,69 @@
     "frank"
    ],
    "approx": false,
-   "tomorrow_hours": 24,
-   "tomorrow_available": true
+   "tomorrow_hours": 0,
+   "tomorrow_available": false
   },
   "weer": {
    "attempts": [
     {
-     "endpoint": "https://api.open-meteo.com/v1/forecast?latitude=52.7&longitude=6.19&hourly=temperature_2m%2Cshortwave_radiation%2Ccloud_cover%2Cwind_speed_10m&timezone=Europe%2FAmsterdam&past_days=60&forecast_days=4&models=knmi_seamless",
+     "endpoint": "https://api.open-meteo.com/v1/forecast?latitude=52.7&longitude=6.19&hourly=temperature_2m%2Cshortwave_radiation%2Ccloud_cover%2Cwind_speed_10m%2Cwind_speed_100m&timezone=Europe%2FAmsterdam&past_days=60&forecast_days=7&models=knmi_seamless",
      "model": "knmi_seamless",
      "http": 200,
-     "records": 1536,
-     "valid": 1536,
+     "records": 1608,
+     "valid": 1608,
      "body": ""
     }
    ],
    "ok": true,
    "model_used": "knmi_seamless",
-   "hours": 1536
+   "hours": 1608,
+   "hours_with_gaps_before_fill": 0,
+   "hours_filled_from_default": 0,
+   "last_complete_hour": "2026-11-17T23:00"
+  },
+  "historie_prijzen": {
+   "attempts": [
+    {
+     "endpoint": "https://api.energy-charts.info/price?bzn=NL&start=2025-10-01&end=2026-11-11",
+     "http": 200,
+     "records": 39076,
+     "body": ""
+    }
+   ]
+  },
+  "historie_weer": {
+   "attempts": [
+    {
+     "endpoint": "https://archive-api.open-meteo.com/v1/archive?latitude=52.7&longitude=6.19&start_date=2025-10-01&end_date=2026-02-28&hourly=temperature_2m%2Cshortwave_radiation%2Ccloud_cover%2Cwind_speed_10m%2Cwind_speed_100m&timezone=Europe%2FAmsterdam",
+     "http": 200,
+     "records": 3624,
+     "body": ""
+    },
+    {
+     "endpoint": "https://archive-api.open-meteo.com/v1/archive?latitude=52.7&longitude=6.19&start_date=2026-03-01&end_date=2026-07-29&hourly=temperature_2m%2Cshortwave_radiation%2Ccloud_cover%2Cwind_speed_10m%2Cwind_speed_100m&timezone=Europe%2FAmsterdam",
+     "http": 200,
+     "records": 3624,
+     "body": ""
+    },
+    {
+     "endpoint": "https://archive-api.open-meteo.com/v1/archive?latitude=52.7&longitude=6.19&start_date=2026-07-30&end_date=2026-11-03&hourly=temperature_2m%2Cshortwave_radiation%2Ccloud_cover%2Cwind_speed_10m%2Cwind_speed_100m&timezone=Europe%2FAmsterdam",
+     "http": 200,
+     "records": 2328,
+     "body": ""
+    }
+   ]
+  },
+  "historie": {
+   "ok": true,
+   "days": 405,
+   "new_or_refreshed": 405,
+   "skipped_incomplete": 1,
+   "first_day": "2025-10-01",
+   "last_day": "2026-11-10",
+   "frank_minus_energycharts_mean_eur_kwh": 0.0,
+   "overlap_hours": 1008,
+   "frank_minus_energycharts_max_abs": 1e-05
   }
  }
 }
