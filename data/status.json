@@ -1,6 +1,6 @@
 {
- "started": "2026-11-11T23:56:43+01:00",
- "finished": "2026-11-11T23:57:47+01:00",
+ "started": "2026-11-12T14:32:04+01:00",
+ "finished": "2026-11-12T14:32:37+01:00",
  "sources": {
   "frank": {
    "attempts": [
@@ -62,16 +62,16 @@
      "endpoint": "https://graphql.frankenergie.nl/",
      "variant": "day_str",
      "start": "2026-11-10",
-     "end": "2026-11-12",
+     "end": "2026-11-13",
      "http": 200,
-     "records": 48,
+     "records": 72,
      "body": ""
     },
     {
      "endpoint": "https://graphql.frankenergie.nl/",
      "variant": "day_str",
-     "start": "2026-11-11",
-     "end": "2026-11-13",
+     "start": "2026-11-12",
+     "end": "2026-11-14",
      "http": 200,
      "records": 48,
      "body": ""
@@ -80,7 +80,7 @@
   },
   "prijzen": {
    "ok": true,
-   "hours_total": 1032,
+   "hours_total": 1056,
    "src_used": [
     "frank"
    ],
@@ -104,14 +104,14 @@
    "hours": 1608,
    "hours_with_gaps_before_fill": 0,
    "hours_filled_from_default": 0,
-   "last_complete_hour": "2026-11-17T23:00"
+   "last_complete_hour": "2026-11-18T23:00"
   },
   "historie_prijzen": {
    "attempts": [
     {
-     "endpoint": "https://api.energy-charts.info/price?bzn=NL&start=2026-03-29&end=2026-11-11",
+     "endpoint": "https://api.energy-charts.info/price?bzn=NL&start=2026-03-29&end=2026-11-12",
      "http": 200,
-     "records": 21888,
+     "records": 21984,
      "body": ""
     }
    ]
@@ -125,22 +125,22 @@
      "body": ""
     },
     {
-     "endpoint": "https://archive-api.open-meteo.com/v1/archive?latitude=52.7&longitude=6.19&start_date=2026-08-27&end_date=2026-11-03&hourly=temperature_2m%2Cshortwave_radiation%2Ccloud_cover%2Cwind_speed_10m%2Cwind_speed_100m&timezone=Europe%2FAmsterdam",
+     "endpoint": "https://archive-api.open-meteo.com/v1/archive?latitude=52.7&longitude=6.19&start_date=2026-08-27&end_date=2026-11-04&hourly=temperature_2m%2Cshortwave_radiation%2Ccloud_cover%2Cwind_speed_10m%2Cwind_speed_100m&timezone=Europe%2FAmsterdam",
      "http": 200,
-     "records": 1656,
+     "records": 1680,
      "body": ""
     }
    ]
   },
   "historie": {
    "ok": true,
-   "days": 405,
+   "days": 406,
    "new_or_refreshed": 8,
    "skipped_incomplete": 1,
    "first_day": "2025-10-01",
-   "last_day": "2026-11-10",
+   "last_day": "2026-11-11",
    "frank_minus_energycharts_mean_eur_kwh": 0.0,
-   "overlap_hours": 1008,
+   "overlap_hours": 1032,
    "frank_minus_energycharts_max_abs": 1e-05
   }
  }
