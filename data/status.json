@@ -1,6 +1,6 @@
 {
- "started": "2026-11-12T23:24:52+01:00",
- "finished": "2026-11-12T23:25:24+01:00",
+ "started": "2026-11-13T13:51:25+01:00",
+ "finished": "2026-11-13T13:55:22+01:00",
  "sources": {
   "frank": {
    "attempts": [
@@ -62,16 +62,16 @@
      "endpoint": "https://graphql.frankenergie.nl/",
      "variant": "day_str",
      "start": "2026-11-10",
-     "end": "2026-11-13",
+     "end": "2026-11-14",
      "http": 200,
-     "records": 72,
+     "records": 96,
      "body": ""
     },
     {
      "endpoint": "https://graphql.frankenergie.nl/",
      "variant": "day_str",
-     "start": "2026-11-12",
-     "end": "2026-11-14",
+     "start": "2026-11-13",
+     "end": "2026-11-15",
      "http": 200,
      "records": 48,
      "body": ""
@@ -80,7 +80,7 @@
   },
   "prijzen": {
    "ok": true,
-   "hours_total": 1056,
+   "hours_total": 1080,
    "src_used": [
     "frank"
    ],
@@ -93,25 +93,29 @@
     {
      "endpoint": "https://api.open-meteo.com/v1/forecast?latitude=52.7&longitude=6.19&hourly=temperature_2m%2Cshortwave_radiation%2Ccloud_cover%2Cwind_speed_10m%2Cwind_speed_100m&timezone=Europe%2FAmsterdam&past_days=60&forecast_days=7&models=knmi_seamless",
      "model": "knmi_seamless",
-     "http": 200,
-     "records": 1608,
-     "valid": 1608,
-     "body": ""
+     "http": 0,
+     "records": 0,
+     "valid": 0,
+     "body": "URLError: <urlopen error _ssl.c:1063: The handshake operation timed out>"
+    },
+    {
+     "endpoint": "https://api.open-meteo.com/v1/forecast?latitude=52.7&longitude=6.19&hourly=temperature_2m%2Cshortwave_radiation%2Ccloud_cover%2Cwind_speed_10m%2Cwind_speed_100m&timezone=Europe%2FAmsterdam&past_days=60&forecast_days=7",
+     "model": "standaard",
+     "http": 0,
+     "records": 0,
+     "valid": 0,
+     "body": "URLError: <urlopen error _ssl.c:1063: The handshake operation timed out>"
     }
    ],
-   "ok": true,
-   "model_used": "knmi_seamless",
-   "hours": 1608,
-   "hours_with_gaps_before_fill": 0,
-   "hours_filled_from_default": 0,
-   "last_complete_hour": "2026-11-18T23:00"
+   "ok": false,
+   "note": "geen model werkte, oude data blijft staan"
   },
   "historie_prijzen": {
    "attempts": [
     {
-     "endpoint": "https://api.energy-charts.info/price?bzn=NL&start=2026-03-29&end=2026-11-12",
+     "endpoint": "https://api.energy-charts.info/price?bzn=NL&start=2026-03-29&end=2026-11-13",
      "http": 200,
-     "records": 21984,
+     "records": 22080,
      "body": ""
     }
    ]
@@ -125,22 +129,22 @@
      "body": ""
     },
     {
-     "endpoint": "https://archive-api.open-meteo.com/v1/archive?latitude=52.7&longitude=6.19&start_date=2026-08-27&end_date=2026-11-04&hourly=temperature_2m%2Cshortwave_radiation%2Ccloud_cover%2Cwind_speed_10m%2Cwind_speed_100m&timezone=Europe%2FAmsterdam",
+     "endpoint": "https://archive-api.open-meteo.com/v1/archive?latitude=52.7&longitude=6.19&start_date=2026-08-27&end_date=2026-11-05&hourly=temperature_2m%2Cshortwave_radiation%2Ccloud_cover%2Cwind_speed_10m%2Cwind_speed_100m&timezone=Europe%2FAmsterdam",
      "http": 200,
-     "records": 1680,
+     "records": 1704,
      "body": ""
     }
    ]
   },
   "historie": {
    "ok": true,
-   "days": 406,
+   "days": 407,
    "new_or_refreshed": 8,
    "skipped_incomplete": 1,
    "first_day": "2025-10-01",
-   "last_day": "2026-11-11",
+   "last_day": "2026-11-12",
    "frank_minus_energycharts_mean_eur_kwh": 0.0,
-   "overlap_hours": 1032,
+   "overlap_hours": 1056,
    "frank_minus_energycharts_max_abs": 1e-05
   }
  }
