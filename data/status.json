@@ -1,6 +1,6 @@
 {
- "started": "2026-11-14T13:34:38+01:00",
- "finished": "2026-11-14T13:40:02+01:00",
+ "started": "2026-11-14T13:41:18+01:00",
+ "finished": "2026-11-14T13:41:39+01:00",
  "sources": {
   "frank": {
    "attempts": [
@@ -75,23 +75,18 @@
     {
      "endpoint": "https://api.open-meteo.com/v1/forecast?latitude=52.7&longitude=6.19&hourly=temperature_2m%2Cshortwave_radiation%2Ccloud_cover%2Cwind_speed_10m%2Cwind_speed_100m&timezone=Europe%2FAmsterdam&past_days=60&forecast_days=7&models=knmi_seamless",
      "model": "knmi_seamless",
-     "http": 0,
-     "records": 0,
-     "valid": 0,
-     "body": "URLError: <urlopen error _ssl.c:1063: The handshake operation timed out>"
-    },
-    {
-     "endpoint": "https://api.open-meteo.com/v1/forecast?latitude=52.7&longitude=6.19&hourly=temperature_2m%2Cshortwave_radiation%2Ccloud_cover%2Cwind_speed_10m%2Cwind_speed_100m&timezone=Europe%2FAmsterdam&past_days=60&forecast_days=7",
-     "model": "standaard",
-     "http": 0,
-     "records": 0,
-     "valid": 0,
-     "body": "URLError: <urlopen error _ssl.c:1063: The handshake operation timed out>"
+     "http": 200,
+     "records": 1608,
+     "valid": 1608,
+     "body": ""
     }
    ],
-   "ok": false,
-   "note": "geen model werkte, oude data blijft staan",
-   "stale_ok": true
+   "ok": true,
+   "model_used": "knmi_seamless",
+   "hours": 1608,
+   "hours_with_gaps_before_fill": 0,
+   "hours_filled_from_default": 0,
+   "last_complete_hour": "2026-11-20T23:00"
   },
   "historie_prijzen": {
    "attempts": [
