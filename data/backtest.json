@@ -357,41 +357,41 @@
   }
  ],
  "prijsmodel": {
-  "historie_dagen": 407,
+  "historie_dagen": 408,
   "eerste_dag": "2025-10-01",
-  "laatste_dag": "2026-11-12",
+  "laatste_dag": "2026-11-13",
   "testperiode_dagen": 150,
   "methode": "rolling origin, elke 25 dagen opnieuw gefit, per horizon k (dagen vooruit)",
   "per_horizon": {
    "1": {
-    "mae_ct": 3.5,
-    "rmse_ct": 5.13,
-    "mae_ct_profiel_x_L7": 4.34,
-    "mae_ct_alleen_L7": 5.76
+    "mae_ct": 3.49,
+    "rmse_ct": 5.11,
+    "mae_ct_profiel_x_L7": 4.36,
+    "mae_ct_alleen_L7": 5.78
    },
    "2": {
-    "mae_ct": 3.72,
-    "rmse_ct": 5.34,
-    "mae_ct_profiel_x_L7": 4.53,
-    "mae_ct_alleen_L7": 5.95
+    "mae_ct": 3.7,
+    "rmse_ct": 5.31,
+    "mae_ct_profiel_x_L7": 4.56,
+    "mae_ct_alleen_L7": 5.98
    },
    "3": {
-    "mae_ct": 3.88,
-    "rmse_ct": 5.5,
-    "mae_ct_profiel_x_L7": 4.64,
-    "mae_ct_alleen_L7": 6.07
+    "mae_ct": 3.87,
+    "rmse_ct": 5.48,
+    "mae_ct_profiel_x_L7": 4.67,
+    "mae_ct_alleen_L7": 6.1
    },
    "4": {
     "mae_ct": 3.98,
-    "rmse_ct": 5.61,
-    "mae_ct_profiel_x_L7": 4.72,
-    "mae_ct_alleen_L7": 6.15
+    "rmse_ct": 5.6,
+    "mae_ct_profiel_x_L7": 4.74,
+    "mae_ct_alleen_L7": 6.17
    },
    "5": {
-    "mae_ct": 4.06,
-    "rmse_ct": 5.7,
-    "mae_ct_profiel_x_L7": 4.78,
-    "mae_ct_alleen_L7": 6.21
+    "mae_ct": 4.05,
+    "rmse_ct": 5.68,
+    "mae_ct_profiel_x_L7": 4.8,
+    "mae_ct_alleen_L7": 6.22
    }
   },
   "planner": {
@@ -399,11 +399,11 @@
    "venster_dagen": 5,
    "n_vensters": 73,
    "eenheid": "ct/kWh kale marktprijs, gemiddelde van de gekozen uren",
-   "model": 5.2,
-   "optimum_achteraf": 3.82,
-   "gemiddeld_uur": 14.72,
-   "alleen_uurprofiel": 6.93,
-   "meteen_beginnen": 13.36
+   "model": 5.27,
+   "optimum_achteraf": 3.89,
+   "gemiddeld_uur": 14.92,
+   "alleen_uurprofiel": 7.17,
+   "meteen_beginnen": 13.49
   }
  }
 }
