@@ -1,27 +1,9 @@
 {
- "started": "2026-11-14T12:56:02+01:00",
- "finished": "2026-11-14T12:59:49+01:00",
+ "started": "2026-11-14T13:34:38+01:00",
+ "finished": "2026-11-14T13:40:02+01:00",
  "sources": {
   "frank": {
    "attempts": [
-    {
-     "endpoint": "https://graphql.frankenergie.nl/",
-     "variant": "range",
-     "start": "2026-10-01",
-     "end": "2026-10-11",
-     "http": 200,
-     "records": 0,
-     "body": "{\"data\":null,\"errors\":[{\"message\":\"Graphql validation error\"}]}"
-    },
-    {
-     "endpoint": "https://graphql.frankenergie.nl/",
-     "variant": "day_date",
-     "start": "2026-10-01",
-     "end": "2026-10-11",
-     "http": 200,
-     "records": 0,
-     "body": "{\"data\":null,\"errors\":[{\"message\":\"Graphql validation error\"}]}"
-    },
     {
      "endpoint": "https://graphql.frankenergie.nl/",
      "variant": "day_str",
@@ -73,29 +55,20 @@
      "start": "2026-11-14",
      "end": "2026-11-16",
      "http": 200,
-     "records": 24,
-     "body": ""
-    },
-    {
-     "endpoint": "https://graphql.frankenergie.nl/",
-     "variant": "day_str",
-     "start": "2026-11-14",
-     "end": "2026-11-15",
-     "http": 200,
-     "records": 24,
+     "records": 48,
      "body": ""
     }
    ]
   },
   "prijzen": {
    "ok": true,
-   "hours_total": 1080,
+   "hours_total": 1104,
    "src_used": [
     "frank"
    ],
    "approx": false,
-   "tomorrow_hours": 0,
-   "tomorrow_available": false
+   "tomorrow_hours": 24,
+   "tomorrow_available": true
   },
   "weer": {
    "attempts": [
@@ -117,7 +90,8 @@
     }
    ],
    "ok": false,
-   "note": "geen model werkte, oude data blijft staan"
+   "note": "geen model werkte, oude data blijft staan",
+   "stale_ok": true
   },
   "historie_prijzen": {
    "attempts": [
