@@ -29,6 +29,19 @@ jobs:
       - name: Offline tests
         run: python3 scripts/test_parse.py
 
+      - name: Diagnose verbinding weer-API
+        continue-on-error: true
+        run: |
+          mkdir -p data/raw
+          {
+            date -u
+            echo "--- DNS"; getent ahosts api.open-meteo.com | head -4
+            echo "--- curl IPv4 forecast"; curl -4 -sS -m 20 -o /dev/null -w "%{http_code} connect=%{time_connect} tls=%{time_appconnect} total=%{time_total}\n" "https://api.open-meteo.com/v1/forecast?latitude=52.7&longitude=6.19&hourly=temperature_2m&forecast_days=1" 2>&1
+            echo "--- curl IPv6 forecast"; curl -6 -sS -m 20 -o /dev/null -w "%{http_code} connect=%{time_connect} tls=%{time_appconnect} total=%{time_total}\n" "https://api.open-meteo.com/v1/forecast?latitude=52.7&longitude=6.19&hourly=temperature_2m&forecast_days=1" 2>&1
+            echo "--- curl archive"; curl -sS -m 20 -o /dev/null -w "%{http_code} total=%{time_total}\n" "https://archive-api.open-meteo.com/v1/archive?latitude=52.7&longitude=6.19&start_date=2026-11-01&end_date=2026-11-02&hourly=temperature_2m" 2>&1
+            echo "--- curl brightsky"; curl -sS -m 20 -o /dev/null -w "%{http_code} total=%{time_total}\n" "https://api.brightsky.dev/weather?lat=52.7&lon=6.19&date=2026-11-14" 2>&1
+          } > data/raw/diag_weer.txt 2>&1 || true
+
       - name: Gegevens ophalen
         id: fetch
         continue-on-error: true

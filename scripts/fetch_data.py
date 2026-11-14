@@ -5,7 +5,7 @@ Draait in een GitHub Action. Alleen standaardbibliotheek. Elke bron probeert
 meerdere endpoints/varianten; alles wat gebeurt komt in data/status.json,
 zodat zonder internet of Actions-toegang te zien is wat werkte.
 """
-import json, os, sys, time, datetime as dt, urllib.request, urllib.error, urllib.parse
+import json, os, sys, time, socket, datetime as dt, urllib.request, urllib.error, urllib.parse
 from zoneinfo import ZoneInfo
 
 TZ = ZoneInfo("Europe/Amsterdam")
@@ -20,6 +20,17 @@ RAW = os.path.join(DATA, "raw")
 APPROX = {"markup_excl": 0.0150, "energy_tax_excl": 0.0916, "btw": 1.21}
 
 STATUS = {"started": None, "finished": None, "sources": {}}
+
+
+_orig_getaddrinfo = socket.getaddrinfo
+FORCE_V4 = {"on": False}
+
+
+def _getaddrinfo(host, port, family=0, type=0, proto=0, flags=0):
+    return _orig_getaddrinfo(host, port, socket.AF_INET if FORCE_V4["on"] else family, type, proto, flags)
+
+
+socket.getaddrinfo = _getaddrinfo
 
 
 def now():
@@ -42,6 +53,8 @@ def http(method, url, body=None, headers=None, timeout=30, retries=2):
             return e.code, txt
         except Exception as e:  # DNS, timeout, SSL
             last = e
+            if i == 0:
+                FORCE_V4["on"] = True   # volgende pogingen alleen via IPv4 (kan hangende IPv6-routes omzeilen)
             time.sleep(5 * (i + 1))
     return 0, "%s: %s" % (type(last).__name__, last)
 
@@ -283,6 +296,27 @@ def weather_call(model, params):
     return rows, valid, txt
 
 
+def brightsky_weather():
+    """Reserve: DWD via Brightsky. Heeft geen wind op 100 m; die wordt geschat als 1,35 x wind op 10 m (benadering)."""
+    today = now().date()
+    url = "https://api.brightsky.dev/weather?" + urllib.parse.urlencode(
+        {"lat": LAT, "lon": LON, "date": today.isoformat(), "last_date": (today + dt.timedelta(days=7)).isoformat(), "tz": "Europe/Amsterdam"})
+    code, txt = http("GET", url, timeout=25, retries=2)
+    rows = []
+    try:
+        for w in json.loads(txt)["weather"]:
+            t = to_local(w["timestamp"]).strftime("%Y-%m-%dT%H:00")
+            sol = w.get("solar_60") if w.get("solar_60") is not None else w.get("solar")
+            wind = w.get("wind_speed")
+            rows.append({"t": t, "temp": w.get("temperature"), "radiation": (sol * 1000.0 if sol is not None else None),
+                         "cloud": w.get("cloud_cover"), "wind": wind, "wind100": (wind * 1.35 if wind is not None else None)})
+    except Exception:
+        pass
+    good = [r for r in rows if r["temp"] is not None and r["radiation"] is not None and r["wind"] is not None]
+    log("weer", endpoint=url, model="brightsky", http=code, records=len(rows), valid=len(good), body=txt if not good else "")
+    return good
+
+
 def run_weather():
     params = {"latitude": LAT, "longitude": LON, "hourly": HOURLY, "timezone": "Europe/Amsterdam",
               "past_days": 60, "forecast_days": 7}
@@ -294,6 +328,21 @@ def run_weather():
             save_raw("weer_sample.json", txt)
             break
     if rows is None:
+        fb = brightsky_weather()
+        if fb:
+            try:
+                old = json.load(open(os.path.join(DATA, "weer.json")))["hourly"]
+            except Exception:
+                old = []
+            by = {r["t"]: r for r in old}
+            for r in fb:
+                by[r["t"]] = r
+            merged = [by[k] for k in sorted(by)]
+            json.dump({"fetched_at": now().isoformat(timespec="seconds"), "model": "brightsky (reserve, DWD) aangevuld met eerder opgehaalde data",
+                       "tz": "Europe/Amsterdam", "location": [LAT, LON], "hourly": merged}, open(os.path.join(DATA, "weer.json"), "w"), indent=1)
+            STATUS["sources"]["weer"] = {**STATUS["sources"]["weer"], "ok": True, "model_used": "brightsky-reserve", "hours": len(merged),
+                                         "note": "Open-Meteo onbereikbaar; reserve gebruikt, wind op 100 m geschat"}
+            return
         STATUS["sources"]["weer"] = {**STATUS["sources"].get("weer", {}), "ok": False, "note": "geen model werkte, oude data blijft staan"}
         return
     # ontbrekende waarden (bv. buiten de horizon van het KNMI-model) aanvullen met het standaardmodel
