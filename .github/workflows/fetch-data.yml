@@ -32,7 +32,12 @@ jobs:
       - name: Gegevens ophalen
         id: fetch
         continue-on-error: true
-        run: python3 scripts/fetch_data.py
+        run: |
+          python3 scripts/fetch_data.py || {
+            echo "Eerste poging gaf een fout; nieuwe poging over 90 seconden"
+            sleep 90
+            python3 scripts/fetch_data.py
+          }
 
       - name: numpy installeren
         run: python3 -m pip install --quiet numpy

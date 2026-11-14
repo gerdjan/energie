@@ -107,7 +107,7 @@ var eur=new Intl.NumberFormat("nl-NL",{style:"currency",currency:"EUR"});
 var n1=new Intl.NumberFormat("nl-NL",{maximumFractionDigits:1});
 var n0=new Intl.NumberFormat("nl-NL",{maximumFractionDigits:0});
 var HW_A=0.165,HW_E=0.021;                 // zelfde formule als index.html
-var M,P,W,ST,PM={},WM={};
+var M,P,W,ST,PM={},WM={},WF=null,PF=null;
 
 function get(u){return fetch(u+"?v="+Date.now()).then(function(r){if(!r.ok)throw new Error(u+" gaf "+r.status);return r.json()})}
 function parseNum(v){v=String(v||"").trim().replace(/\s/g,"");if(!v)return NaN;if(v.indexOf(",")>-1)v=v.replace(/\./g,"").replace(",",".");return Number(v)}
@@ -385,16 +385,16 @@ function about(){
 function alerts(){
   var el=$("alerts");el.innerHTML="";
   function add(t){var d=document.createElement("div");d.className="alert";d.textContent=t;el.appendChild(d)}
-  if(ST&&ST.finished){
-    var age=(Date.now()-new Date(ST.finished).getTime())/36e5;
-    if(age>30)add("De gegevens zijn "+n0.format(age)+" uur oud. Kijk in GitHub bij Actions of de dagelijkse ophaalactie nog draait.");
-  }
+  function ageH(t){return t?(Date.now()-new Date(t).getTime())/36e5:null}
+  var aw=ageH(WF),ap=ageH(PF);
+  if(aw!==null&&aw>14)add("Het weer is "+n0.format(aw)+" uur oud (laatste ophaalpoging mislukt of nog niet gedraaid). De verwachting kan iets afwijken. Kijk in GitHub bij Actions.");
+  if(ap!==null&&ap>30)add("De prijzen zijn "+n0.format(ap)+" uur oud. Kijk in GitHub bij Actions of de dagelijkse ophaalactie nog draait.");
   if(ST&&ST.sources&&ST.sources.prijzen&&ST.sources.prijzen.approx)add("De prijzen zijn een benadering, omdat Frank niet bereikbaar was.");
   if(ST&&ST.sources&&ST.sources.weer&&ST.sources.weer.ok===false)add("Het weer kon niet worden opgehaald. De weerdata is mogelijk verouderd.");
 }
 
 Promise.all([get("data/model.json"),get("data/prijzen.json"),get("data/weer.json"),get("data/status.json")]).then(function(r){
-  M=r[0];P=r[1].hours;W=r[2].hourly;ST=r[3];
+  M=r[0];P=r[1].hours;PF=r[1].fetched_at;W=r[2].hourly;WF=r[2].fetched_at;ST=r[3];
   try{var s=JSON.parse(localStorage.getItem("verwachting-"+nlNow().date));if(s){$("ia").value=s.a||"";$("ie").value=s.e||"";$("ih").value=s.h||""}}catch(x){}
   ["ia","ie","ih"].forEach(function(i){$(i).addEventListener("input",renderToday)});
   alerts();renderToday();renderTomorrow();initPlanner();about();

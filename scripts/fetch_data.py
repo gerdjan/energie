@@ -38,11 +38,11 @@ def http(method, url, body=None, headers=None, timeout=30, retries=2):
         except urllib.error.HTTPError as e:
             txt = e.read().decode("utf-8", "replace")
             if e.code >= 500 and i < retries:
-                time.sleep(2 * (i + 1)); continue
+                time.sleep(4 * (i + 1)); continue
             return e.code, txt
         except Exception as e:  # DNS, timeout, SSL
             last = e
-            time.sleep(2 * (i + 1))
+            time.sleep(5 * (i + 1))
     return 0, "%s: %s" % (type(last).__name__, last)
 
 
@@ -99,7 +99,7 @@ def frank_fetch(start, end, state):
     if state.get("ok"):
         combos.append(state["ok"])
     for ep in FRANK_ENDPOINTS:
-        for v in ("range", "day_date", "day_str"):
+        for v in ("day_str", "range", "day_date"):
             if (ep, v) not in combos:
                 combos.append((ep, v))
     for ep, v in combos:
@@ -272,7 +272,7 @@ def weather_call(model, params):
     if model:
         p["models"] = model
     url = "https://api.open-meteo.com/v1/forecast?" + urllib.parse.urlencode(p)
-    code, txt = http("GET", url)
+    code, txt = http("GET", url, timeout=25, retries=3)
     rows = []
     try:
         rows = parse_weather(json.loads(txt))
@@ -429,6 +429,14 @@ def run_history():
         "frank_minus_energycharts_max_abs": (round(max(abs(x) for x in diffs), 5) if diffs else None)}
 
 
+def fresh(path, key, max_hours):
+    try:
+        t = dt.datetime.fromisoformat(json.load(open(os.path.join(DATA, path)))[key])
+        return (now() - t).total_seconds() / 3600.0 < max_hours
+    except Exception:
+        return False
+
+
 def main():
     os.makedirs(RAW, exist_ok=True)
     STATUS["started"] = now().isoformat(timespec="seconds")
@@ -439,7 +447,16 @@ def main():
             STATUS["sources"].setdefault(fn.__name__, {})["fatal"] = repr(e)
     STATUS["finished"] = now().isoformat(timespec="seconds")
     json.dump(STATUS, open(os.path.join(DATA, "status.json"), "w"), indent=1)
-    ok = all(STATUS["sources"].get(k, {}).get("ok") for k in ("prijzen", "weer", "historie"))
+    ok = True
+    for name, path, key in (("prijzen", "prijzen.json", "fetched_at"), ("weer", "weer.json", "fetched_at"), ("historie", "historie.json", "updated")):
+        src = STATUS["sources"].setdefault(name, {})
+        if not src.get("ok"):
+            # een kortdurende storing is geen mislukking zolang de oude data nog vers is (minder dan 20 uur)
+            if fresh(path, key, 20):
+                src["stale_ok"] = True
+            else:
+                ok = False
+    json.dump(STATUS, open(os.path.join(DATA, "status.json"), "w"), indent=1)
     print(json.dumps({k: v.get("ok") for k, v in STATUS["sources"].items()}))
     return 0 if ok else 1
 
