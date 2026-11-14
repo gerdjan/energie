@@ -140,3 +140,16 @@ Sessies van AI-tools hebben vaak geen internet (DNS-fouten bij Open-Meteo en Fra
 - Een volgende stap: weersvoorspellingen archiveren voor een eerlijker backtest, en laaddagen als kolom in `dagen.csv` om de verbruiksvoorspelling te verbeteren.
 
 **Weergave van prijzen (aangepast 11 november 2026):** de grafieken en het rooster tonen all-in prijzen (all-in = (1 + btw) × markt + toeslag, dus inclusief energiebelasting, opslag en btw, zoals de Frank-app). De eerste versie toonde de "effectieve prijs" (`k_p × all-in − k_c`), wat voor de eigenaar verwarrend was. De uren worden nog steeds gerangschikt op prijs; dat is voor all-in en effectieve prijs dezelfde volgorde. De totale kosten in de planner zijn nu kWh × all-in prijs; de bijdrage aan het Frank-dagbedrag (effectieve prijs) staat als aparte rij. Backtestcijfers in de tekst op de pagina worden omgerekend van kale marktprijs naar all-in (maal 1 + btw, plus de toeslag).
+
+## 12. Storing van 14 november 2026 en robuustheid van de ophaalactie
+
+**Wat er gebeurde:** de geplande run van 14 november (12:55 NL-tijd) werd rood en stuurde een e-mail van GitHub. In `data/status.json` bleek dat alleen het weer was mislukt: beide aanroepen naar `api.open-meteo.com` (KNMI-model en standaardmodel) gaven een SSL-handshake time-out, ook na de nieuwe pogingen. Prijzen, historie en kalibratie waren goed gegaan; het weer bleef staan op de vorige run (de avond ervoor). Een tweede run ruim een half uur later had hetzelfde probleem; rond 13:40 werkte de verbinding weer (HTTP 200 in ca. 65 ms). De oorzaak is niet vastgesteld; de diagnose in `data/raw/diag_weer.txt` laat zien dat de verbinding op dat moment goed was. Vermoedelijk een tijdelijk netwerkprobleem tussen de GitHub-runner en die server.
+
+**Wat er is veranderd:**
+- Een bron telt niet meer als mislukt zolang de bestaande data jonger is dan 20 uur (`stale_ok` in `status.json`). De run wordt dan niet rood en er komt geen e-mail. Pas bij oudere data wordt hij rood.
+- Meer en langere pogingen bij netwerkfouten (3 pogingen, oplopende wachttijd), en na de eerste netwerkfout alleen nog IPv4.
+- De workflow voert `fetch_data.py` bij een fout een tweede keer uit na 90 seconden.
+- Reservebron voor het weer: Brightsky (DWD, `api.brightsky.dev`). Die heeft geen wind op 100 m; die wordt dan geschat als 1,35 maal de wind op 10 m. **De Brightsky-aanroep en -parsing zijn niet getest op echte data** (alleen de bereikbaarheid, HTTP 200, is gecontroleerd). Controleer `status.json` zodra hij een keer wordt gebruikt.
+- Frank-variant `day_str` wordt eerst geprobeerd (de andere varianten geven bij Frank sinds de eerste run altijd een validatiefout).
+- De pagina toont een waarschuwing als het weer ouder is dan 14 uur of de prijzen ouder zijn dan 30 uur, per bestand. Eerder keek de pagina alleen naar het tijdstip van de laatste run, waardoor een mislukt weer niet opviel.
+- De workflow schrijft elke run `data/raw/diag_weer.txt` (DNS en curl-tijden naar Open-Meteo en Brightsky) zodat het volgende probleem sneller te duiden is.
