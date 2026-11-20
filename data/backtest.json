@@ -389,7 +389,7 @@
    },
    "5": {
     "mae_ct": 3.99,
-    "rmse_ct": 5.5,
+    "rmse_ct": 5.51,
     "mae_ct_profiel_x_L7": 5.06,
     "mae_ct_alleen_L7": 6.38
    }
