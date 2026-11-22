@@ -1,5 +1,5 @@
 {
- "fetched_at": "2026-11-21T22:49:59+01:00",
+ "fetched_at": "2026-11-22T14:05:44+01:00",
  "unit": "EUR/kWh",
  "tz": "Europe/Amsterdam",
  "hours": [
@@ -13474,7 +13474,7 @@
    "market_tax": 0.03925,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 2,
+   "n": 1,
    "src": "frank",
    "approx": false
   },
@@ -13485,7 +13485,7 @@
    "market_tax": 0.03772,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 2,
+   "n": 1,
    "src": "frank",
    "approx": false
   },
@@ -13496,7 +13496,7 @@
    "market_tax": 0.03695,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 2,
+   "n": 1,
    "src": "frank",
    "approx": false
   },
@@ -13507,7 +13507,7 @@
    "market_tax": 0.03638,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 2,
+   "n": 1,
    "src": "frank",
    "approx": false
   },
@@ -13518,7 +13518,7 @@
    "market_tax": 0.036,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 2,
+   "n": 1,
    "src": "frank",
    "approx": false
   },
@@ -13529,7 +13529,7 @@
    "market_tax": 0.03652,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 2,
+   "n": 1,
    "src": "frank",
    "approx": false
   },
@@ -13540,7 +13540,7 @@
    "market_tax": 0.03938,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 2,
+   "n": 1,
    "src": "frank",
    "approx": false
   },
@@ -13551,7 +13551,7 @@
    "market_tax": 0.04284,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 2,
+   "n": 1,
    "src": "frank",
    "approx": false
   },
@@ -13562,7 +13562,7 @@
    "market_tax": 0.04677,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 2,
+   "n": 1,
    "src": "frank",
    "approx": false
   },
@@ -13573,7 +13573,7 @@
    "market_tax": 0.04478,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 2,
+   "n": 1,
    "src": "frank",
    "approx": false
   },
@@ -13584,7 +13584,7 @@
    "market_tax": 0.03744,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 2,
+   "n": 1,
    "src": "frank",
    "approx": false
   },
@@ -13595,7 +13595,7 @@
    "market_tax": 0.03509,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 2,
+   "n": 1,
    "src": "frank",
    "approx": false
   },
@@ -13606,7 +13606,7 @@
    "market_tax": 0.03377,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 2,
+   "n": 1,
    "src": "frank",
    "approx": false
   },
@@ -13617,7 +13617,7 @@
    "market_tax": 0.03382,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 2,
+   "n": 1,
    "src": "frank",
    "approx": false
   },
@@ -13628,7 +13628,7 @@
    "market_tax": 0.03716,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 2,
+   "n": 1,
    "src": "frank",
    "approx": false
   },
@@ -13639,7 +13639,7 @@
    "market_tax": 0.0419,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 2,
+   "n": 1,
    "src": "frank",
    "approx": false
   },
@@ -13650,7 +13650,7 @@
    "market_tax": 0.04626,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 2,
+   "n": 1,
    "src": "frank",
    "approx": false
   },
@@ -13661,7 +13661,7 @@
    "market_tax": 0.04953,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 2,
+   "n": 1,
    "src": "frank",
    "approx": false
   },
@@ -13672,7 +13672,7 @@
    "market_tax": 0.05001,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 2,
+   "n": 1,
    "src": "frank",
    "approx": false
   },
@@ -13683,7 +13683,7 @@
    "market_tax": 0.04827,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 2,
+   "n": 1,
    "src": "frank",
    "approx": false
   },
@@ -13694,7 +13694,7 @@
    "market_tax": 0.04439,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 2,
+   "n": 1,
    "src": "frank",
    "approx": false
   },
@@ -13705,7 +13705,7 @@
    "market_tax": 0.04266,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 2,
+   "n": 1,
    "src": "frank",
    "approx": false
   },
@@ -13716,7 +13716,7 @@
    "market_tax": 0.04192,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 2,
+   "n": 1,
    "src": "frank",
    "approx": false
   },
@@ -13727,7 +13727,7 @@
    "market_tax": 0.04038,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 2,
+   "n": 1,
    "src": "frank",
    "approx": false
   },
@@ -13738,7 +13738,7 @@
    "market_tax": 0.04011,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 1,
+   "n": 2,
    "src": "frank",
    "approx": false
   },
@@ -13749,7 +13749,7 @@
    "market_tax": 0.03997,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 1,
+   "n": 2,
    "src": "frank",
    "approx": false
   },
@@ -13760,7 +13760,7 @@
    "market_tax": 0.03962,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 1,
+   "n": 2,
    "src": "frank",
    "approx": false
   },
@@ -13771,7 +13771,7 @@
    "market_tax": 0.03939,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 1,
+   "n": 2,
    "src": "frank",
    "approx": false
   },
@@ -13782,7 +13782,7 @@
    "market_tax": 0.03972,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 1,
+   "n": 2,
    "src": "frank",
    "approx": false
   },
@@ -13793,7 +13793,7 @@
    "market_tax": 0.03981,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 1,
+   "n": 2,
    "src": "frank",
    "approx": false
   },
@@ -13804,7 +13804,7 @@
    "market_tax": 0.03906,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 1,
+   "n": 2,
    "src": "frank",
    "approx": false
   },
@@ -13815,7 +13815,7 @@
    "market_tax": 0.03968,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 1,
+   "n": 2,
    "src": "frank",
    "approx": false
   },
@@ -13826,7 +13826,7 @@
    "market_tax": 0.04061,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 1,
+   "n": 2,
    "src": "frank",
    "approx": false
   },
@@ -13837,7 +13837,7 @@
    "market_tax": 0.03941,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 1,
+   "n": 2,
    "src": "frank",
    "approx": false
   },
@@ -13848,7 +13848,7 @@
    "market_tax": 0.03793,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 1,
+   "n": 2,
    "src": "frank",
    "approx": false
   },
@@ -13859,7 +13859,7 @@
    "market_tax": 0.03788,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 1,
+   "n": 2,
    "src": "frank",
    "approx": false
   },
@@ -13870,7 +13870,7 @@
    "market_tax": 0.03754,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 1,
+   "n": 2,
    "src": "frank",
    "approx": false
   },
@@ -13881,7 +13881,7 @@
    "market_tax": 0.03759,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 1,
+   "n": 2,
    "src": "frank",
    "approx": false
   },
@@ -13892,7 +13892,7 @@
    "market_tax": 0.0401,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 1,
+   "n": 2,
    "src": "frank",
    "approx": false
   },
@@ -13903,7 +13903,7 @@
    "market_tax": 0.04322,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 1,
+   "n": 2,
    "src": "frank",
    "approx": false
   },
@@ -13914,7 +13914,7 @@
    "market_tax": 0.0441,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 1,
+   "n": 2,
    "src": "frank",
    "approx": false
   },
@@ -13925,7 +13925,7 @@
    "market_tax": 0.04786,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 1,
+   "n": 2,
    "src": "frank",
    "approx": false
   },
@@ -13936,7 +13936,7 @@
    "market_tax": 0.04814,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 1,
+   "n": 2,
    "src": "frank",
    "approx": false
   },
@@ -13947,7 +13947,7 @@
    "market_tax": 0.04788,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 1,
+   "n": 2,
    "src": "frank",
    "approx": false
   },
@@ -13958,7 +13958,7 @@
    "market_tax": 0.04524,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 1,
+   "n": 2,
    "src": "frank",
    "approx": false
   },
@@ -13969,7 +13969,7 @@
    "market_tax": 0.04336,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 1,
+   "n": 2,
    "src": "frank",
    "approx": false
   },
@@ -13980,7 +13980,7 @@
    "market_tax": 0.04218,
    "markup": 0.01815,
    "energy_tax": 0.11085,
-   "n": 1,
+   "n": 2,
    "src": "frank",
    "approx": false
   },
@@ -13989,6 +13989,270 @@
    "all_in": 0.35944,
    "market": 0.19045,
    "market_tax": 0.03999,
+   "markup": 0.01815,
+   "energy_tax": 0.11085,
+   "n": 2,
+   "src": "frank",
+   "approx": false
+  },
+  {
+   "t": "2026-11-23T00:00",
+   "all_in": 0.35554,
+   "market": 0.18722,
+   "market_tax": 0.03932,
+   "markup": 0.01815,
+   "energy_tax": 0.11085,
+   "n": 1,
+   "src": "frank",
+   "approx": false
+  },
+  {
+   "t": "2026-11-23T01:00",
+   "all_in": 0.35071,
+   "market": 0.18323,
+   "market_tax": 0.03848,
+   "markup": 0.01815,
+   "energy_tax": 0.11085,
+   "n": 1,
+   "src": "frank",
+   "approx": false
+  },
+  {
+   "t": "2026-11-23T02:00",
+   "all_in": 0.34974,
+   "market": 0.18243,
+   "market_tax": 0.03831,
+   "markup": 0.01815,
+   "energy_tax": 0.11085,
+   "n": 1,
+   "src": "frank",
+   "approx": false
+  },
+  {
+   "t": "2026-11-23T03:00",
+   "all_in": 0.34884,
+   "market": 0.18169,
+   "market_tax": 0.03815,
+   "markup": 0.01815,
+   "energy_tax": 0.11085,
+   "n": 1,
+   "src": "frank",
+   "approx": false
+  },
+  {
+   "t": "2026-11-23T04:00",
+   "all_in": 0.34968,
+   "market": 0.18238,
+   "market_tax": 0.0383,
+   "markup": 0.01815,
+   "energy_tax": 0.11085,
+   "n": 1,
+   "src": "frank",
+   "approx": false
+  },
+  {
+   "t": "2026-11-23T05:00",
+   "all_in": 0.35694,
+   "market": 0.18838,
+   "market_tax": 0.03956,
+   "markup": 0.01815,
+   "energy_tax": 0.11085,
+   "n": 1,
+   "src": "frank",
+   "approx": false
+  },
+  {
+   "t": "2026-11-23T06:00",
+   "all_in": 0.39221,
+   "market": 0.21753,
+   "market_tax": 0.04568,
+   "markup": 0.01815,
+   "energy_tax": 0.11085,
+   "n": 1,
+   "src": "frank",
+   "approx": false
+  },
+  {
+   "t": "2026-11-23T07:00",
+   "all_in": 0.45067,
+   "market": 0.26584,
+   "market_tax": 0.05583,
+   "markup": 0.01815,
+   "energy_tax": 0.11085,
+   "n": 1,
+   "src": "frank",
+   "approx": false
+  },
+  {
+   "t": "2026-11-23T08:00",
+   "all_in": 0.46901,
+   "market": 0.281,
+   "market_tax": 0.05901,
+   "markup": 0.01815,
+   "energy_tax": 0.11085,
+   "n": 1,
+   "src": "frank",
+   "approx": false
+  },
+  {
+   "t": "2026-11-23T09:00",
+   "all_in": 0.45565,
+   "market": 0.26996,
+   "market_tax": 0.05669,
+   "markup": 0.01815,
+   "energy_tax": 0.11085,
+   "n": 1,
+   "src": "frank",
+   "approx": false
+  },
+  {
+   "t": "2026-11-23T10:00",
+   "all_in": 0.42584,
+   "market": 0.24532,
+   "market_tax": 0.05152,
+   "markup": 0.01815,
+   "energy_tax": 0.11085,
+   "n": 1,
+   "src": "frank",
+   "approx": false
+  },
+  {
+   "t": "2026-11-23T11:00",
+   "all_in": 0.39134,
+   "market": 0.21681,
+   "market_tax": 0.04553,
+   "markup": 0.01815,
+   "energy_tax": 0.11085,
+   "n": 1,
+   "src": "frank",
+   "approx": false
+  },
+  {
+   "t": "2026-11-23T12:00",
+   "all_in": 0.38176,
+   "market": 0.20889,
+   "market_tax": 0.04387,
+   "markup": 0.01815,
+   "energy_tax": 0.11085,
+   "n": 1,
+   "src": "frank",
+   "approx": false
+  },
+  {
+   "t": "2026-11-23T13:00",
+   "all_in": 0.38576,
+   "market": 0.2122,
+   "market_tax": 0.04456,
+   "markup": 0.01815,
+   "energy_tax": 0.11085,
+   "n": 1,
+   "src": "frank",
+   "approx": false
+  },
+  {
+   "t": "2026-11-23T14:00",
+   "all_in": 0.42303,
+   "market": 0.243,
+   "market_tax": 0.05103,
+   "markup": 0.01815,
+   "energy_tax": 0.11085,
+   "n": 1,
+   "src": "frank",
+   "approx": false
+  },
+  {
+   "t": "2026-11-23T15:00",
+   "all_in": 0.46254,
+   "market": 0.27565,
+   "market_tax": 0.05789,
+   "markup": 0.01815,
+   "energy_tax": 0.11085,
+   "n": 1,
+   "src": "frank",
+   "approx": false
+  },
+  {
+   "t": "2026-11-23T16:00",
+   "all_in": 0.49582,
+   "market": 0.30316,
+   "market_tax": 0.06366,
+   "markup": 0.01815,
+   "energy_tax": 0.11085,
+   "n": 1,
+   "src": "frank",
+   "approx": false
+  },
+  {
+   "t": "2026-11-23T17:00",
+   "all_in": 0.51026,
+   "market": 0.31509,
+   "market_tax": 0.06617,
+   "markup": 0.01815,
+   "energy_tax": 0.11085,
+   "n": 1,
+   "src": "frank",
+   "approx": false
+  },
+  {
+   "t": "2026-11-23T18:00",
+   "all_in": 0.51136,
+   "market": 0.316,
+   "market_tax": 0.06636,
+   "markup": 0.01815,
+   "energy_tax": 0.11085,
+   "n": 1,
+   "src": "frank",
+   "approx": false
+  },
+  {
+   "t": "2026-11-23T19:00",
+   "all_in": 0.49402,
+   "market": 0.30167,
+   "market_tax": 0.06335,
+   "markup": 0.01815,
+   "energy_tax": 0.11085,
+   "n": 1,
+   "src": "frank",
+   "approx": false
+  },
+  {
+   "t": "2026-11-23T20:00",
+   "all_in": 0.46986,
+   "market": 0.2817,
+   "market_tax": 0.05916,
+   "markup": 0.01815,
+   "energy_tax": 0.11085,
+   "n": 1,
+   "src": "frank",
+   "approx": false
+  },
+  {
+   "t": "2026-11-23T21:00",
+   "all_in": 0.43719,
+   "market": 0.2547,
+   "market_tax": 0.05349,
+   "markup": 0.01815,
+   "energy_tax": 0.11085,
+   "n": 1,
+   "src": "frank",
+   "approx": false
+  },
+  {
+   "t": "2026-11-23T22:00",
+   "all_in": 0.41733,
+   "market": 0.23829,
+   "market_tax": 0.05004,
+   "markup": 0.01815,
+   "energy_tax": 0.11085,
+   "n": 1,
+   "src": "frank",
+   "approx": false
+  },
+  {
+   "t": "2026-11-23T23:00",
+   "all_in": 0.38746,
+   "market": 0.2136,
+   "market_tax": 0.04486,
    "markup": 0.01815,
    "energy_tax": 0.11085,
    "n": 1,
