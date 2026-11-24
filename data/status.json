@@ -1,6 +1,6 @@
 {
- "started": "2026-11-23T16:40:59+01:00",
- "finished": "2026-11-23T16:41:27+01:00",
+ "started": "2026-11-24T02:45:51+01:00",
+ "finished": "2026-11-24T02:46:39+01:00",
  "sources": {
   "frank": {
    "attempts": [
@@ -53,18 +53,27 @@
      "endpoint": "https://graphql.frankenergie.nl/",
      "variant": "day_str",
      "start": "2026-11-20",
-     "end": "2026-11-24",
+     "end": "2026-11-25",
      "http": 200,
-     "records": 96,
+     "records": 120,
      "body": ""
     },
     {
      "endpoint": "https://graphql.frankenergie.nl/",
      "variant": "day_str",
-     "start": "2026-11-23",
+     "start": "2026-11-24",
+     "end": "2026-11-26",
+     "http": 200,
+     "records": 24,
+     "body": ""
+    },
+    {
+     "endpoint": "https://graphql.frankenergie.nl/",
+     "variant": "day_str",
+     "start": "2026-11-24",
      "end": "2026-11-25",
      "http": 200,
-     "records": 48,
+     "records": 24,
      "body": ""
     }
    ]
@@ -76,8 +85,8 @@
     "frank"
    ],
    "approx": false,
-   "tomorrow_hours": 24,
-   "tomorrow_available": true
+   "tomorrow_hours": 0,
+   "tomorrow_available": false
   },
   "weer": {
    "attempts": [
@@ -95,14 +104,14 @@
    "hours": 1608,
    "hours_with_gaps_before_fill": 0,
    "hours_filled_from_default": 0,
-   "last_complete_hour": "2026-11-29T23:00"
+   "last_complete_hour": "2026-11-30T23:00"
   },
   "historie_prijzen": {
    "attempts": [
     {
-     "endpoint": "https://api.energy-charts.info/price?bzn=NL&start=2026-03-29&end=2026-11-23",
+     "endpoint": "https://api.energy-charts.info/price?bzn=NL&start=2026-03-29&end=2026-11-24",
      "http": 200,
-     "records": 22848,
+     "records": 22944,
      "body": ""
     }
    ]
@@ -116,22 +125,22 @@
      "body": ""
     },
     {
-     "endpoint": "https://archive-api.open-meteo.com/v1/archive?latitude=52.7&longitude=6.19&start_date=2026-08-27&end_date=2026-11-15&hourly=temperature_2m%2Cshortwave_radiation%2Ccloud_cover%2Cwind_speed_10m%2Cwind_speed_100m&timezone=Europe%2FAmsterdam",
+     "endpoint": "https://archive-api.open-meteo.com/v1/archive?latitude=52.7&longitude=6.19&start_date=2026-08-27&end_date=2026-11-16&hourly=temperature_2m%2Cshortwave_radiation%2Ccloud_cover%2Cwind_speed_10m%2Cwind_speed_100m&timezone=Europe%2FAmsterdam",
      "http": 200,
-     "records": 1944,
+     "records": 1968,
      "body": ""
     }
    ]
   },
   "historie": {
    "ok": true,
-   "days": 417,
+   "days": 418,
    "new_or_refreshed": 8,
    "skipped_incomplete": 1,
    "first_day": "2025-10-01",
-   "last_day": "2026-11-22",
+   "last_day": "2026-11-23",
    "frank_minus_energycharts_mean_eur_kwh": 0.0,
-   "overlap_hours": 1248,
+   "overlap_hours": 1272,
    "frank_minus_energycharts_max_abs": 1e-05
   }
  }
