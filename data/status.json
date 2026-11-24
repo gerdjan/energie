@@ -1,6 +1,6 @@
 {
- "started": "2026-11-24T04:00:15+01:00",
- "finished": "2026-11-24T04:05:24+01:00",
+ "started": "2026-11-24T16:30:32+01:00",
+ "finished": "2026-11-24T16:32:56+01:00",
  "sources": {
   "frank": {
    "attempts": [
@@ -64,43 +64,26 @@
      "start": "2026-11-24",
      "end": "2026-11-26",
      "http": 200,
-     "records": 24,
-     "body": ""
-    },
-    {
-     "endpoint": "https://graphql.frankenergie.nl/",
-     "variant": "day_str",
-     "start": "2026-11-24",
-     "end": "2026-11-25",
-     "http": 200,
-     "records": 24,
+     "records": 48,
      "body": ""
     }
    ]
   },
   "prijzen": {
    "ok": true,
-   "hours_total": 1320,
+   "hours_total": 1344,
    "src_used": [
     "frank"
    ],
    "approx": false,
-   "tomorrow_hours": 0,
-   "tomorrow_available": false
+   "tomorrow_hours": 24,
+   "tomorrow_available": true
   },
   "weer": {
    "attempts": [
     {
      "endpoint": "https://api.open-meteo.com/v1/forecast?latitude=52.7&longitude=6.19&hourly=temperature_2m%2Cshortwave_radiation%2Ccloud_cover%2Cwind_speed_10m%2Cwind_speed_100m&timezone=Europe%2FAmsterdam&past_days=60&forecast_days=7&models=knmi_seamless",
      "model": "knmi_seamless",
-     "http": 0,
-     "records": 0,
-     "valid": 0,
-     "body": "URLError: <urlopen error _ssl.c:1063: The handshake operation timed out>"
-    },
-    {
-     "endpoint": "https://api.open-meteo.com/v1/forecast?latitude=52.7&longitude=6.19&hourly=temperature_2m%2Cshortwave_radiation%2Ccloud_cover%2Cwind_speed_10m%2Cwind_speed_100m&timezone=Europe%2FAmsterdam&past_days=60&forecast_days=7",
-     "model": "standaard",
      "http": 200,
      "records": 1608,
      "valid": 1608,
@@ -108,7 +91,7 @@
     }
    ],
    "ok": true,
-   "model_used": "standaard",
+   "model_used": "knmi_seamless",
    "hours": 1608,
    "hours_with_gaps_before_fill": 0,
    "hours_filled_from_default": 0,
@@ -119,7 +102,7 @@
     {
      "endpoint": "https://api.energy-charts.info/price?bzn=NL&start=2026-03-29&end=2026-11-24",
      "http": 200,
-     "records": 22944,
+     "records": 23040,
      "body": ""
     }
    ]
@@ -148,7 +131,7 @@
    "first_day": "2025-10-01",
    "last_day": "2026-11-23",
    "frank_minus_energycharts_mean_eur_kwh": 0.0,
-   "overlap_hours": 1272,
+   "overlap_hours": 1296,
    "frank_minus_energycharts_max_abs": 1e-05
   }
  }

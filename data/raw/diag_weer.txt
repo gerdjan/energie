@@ -1,15 +1,14 @@
-Tue Nov 24 02:59:53 UTC 2026
+Tue Nov 24 15:30:31 UTC 2026
 --- DNS
-51.81.167.44    STREAM api.open-meteo.com
-51.81.167.44    DGRAM  
-51.81.167.44    RAW    
+167.114.211.86  STREAM api.open-meteo.com
+167.114.211.86  DGRAM  
+167.114.211.86  RAW    
 --- curl IPv4 forecast
-curl: (28) Connection timed out after 20002 milliseconds
-000 connect=0.000000 tls=0.000000 total=20.002172
+200 connect=0.020366 tls=0.043587 total=0.062952
 --- curl IPv6 forecast
 curl: (6) Could not resolve host: api.open-meteo.com
-000 connect=0.000000 tls=0.000000 total=0.007267
+000 connect=0.000000 tls=0.000000 total=0.063480
 --- curl archive
-200 total=0.678087
+200 total=0.393895
 --- curl brightsky
-404 total=0.691275
+404 total=0.317778

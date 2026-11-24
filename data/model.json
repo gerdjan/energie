@@ -14,7 +14,7 @@
   "k_c": 0.14443577263634289
  },
  "versie": 1,
- "gekalibreerd_op": "2026-11-24T03:05:30+00:00",
+ "gekalibreerd_op": "2026-11-24T15:33:01+00:00",
  "dagen_in_fit": 31,
  "dagen_met_frank": 27,
  "uitbijters_afname": [
@@ -249,7 +249,7 @@
   "omrekening": {
    "btw": 0.21,
    "toeslag": 0.129,
-   "bron_uur": "2026-11-24T23:00"
+   "bron_uur": "2026-11-25T23:00"
   },
   "kwaliteit": {
    "per_horizon": {
