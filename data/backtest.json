@@ -376,7 +376,7 @@
     "mae_ct_alleen_L7": 5.9
    },
    "3": {
-    "mae_ct": 3.68,
+    "mae_ct": 3.67,
     "rmse_ct": 4.9,
     "mae_ct_profiel_x_L7": 4.83,
     "mae_ct_alleen_L7": 6.06
@@ -389,7 +389,7 @@
    },
    "5": {
     "mae_ct": 3.86,
-    "rmse_ct": 5.1,
+    "rmse_ct": 5.09,
     "mae_ct_profiel_x_L7": 5.02,
     "mae_ct_alleen_L7": 6.24
    }
