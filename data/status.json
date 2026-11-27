@@ -1,6 +1,6 @@
 {
- "started": "2026-11-27T00:08:04+01:00",
- "finished": "2026-11-27T00:08:31+01:00",
+ "started": "2026-11-27T01:45:04+01:00",
+ "finished": "2026-11-27T01:45:56+01:00",
  "sources": {
   "frank": {
    "attempts": [
@@ -127,8 +127,8 @@
     {
      "endpoint": "https://archive-api.open-meteo.com/v1/archive?latitude=52.7&longitude=6.19&start_date=2026-08-27&end_date=2026-11-19&hourly=temperature_2m%2Cshortwave_radiation%2Ccloud_cover%2Cwind_speed_10m%2Cwind_speed_100m&timezone=Europe%2FAmsterdam",
      "http": 200,
-     "records": 2040,
-     "body": ""
+     "records": 0,
+     "body": "Unexpected error while streaming data: fileModifiedOrPrevalidationFailed"
     }
    ]
   },
