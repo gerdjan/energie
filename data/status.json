@@ -1,6 +1,6 @@
 {
- "started": "2026-11-27T01:45:04+01:00",
- "finished": "2026-11-27T01:45:56+01:00",
+ "started": "2026-11-27T15:42:11+01:00",
+ "finished": "2026-11-27T15:42:44+01:00",
  "sources": {
   "frank": {
    "attempts": [
@@ -64,29 +64,20 @@
      "start": "2026-11-27",
      "end": "2026-11-29",
      "http": 200,
-     "records": 24,
-     "body": ""
-    },
-    {
-     "endpoint": "https://graphql.frankenergie.nl/",
-     "variant": "day_str",
-     "start": "2026-11-27",
-     "end": "2026-11-28",
-     "http": 200,
-     "records": 24,
+     "records": 48,
      "body": ""
     }
    ]
   },
   "prijzen": {
    "ok": true,
-   "hours_total": 1392,
+   "hours_total": 1416,
    "src_used": [
     "frank"
    ],
    "approx": false,
-   "tomorrow_hours": 0,
-   "tomorrow_available": false
+   "tomorrow_hours": 24,
+   "tomorrow_available": true
   },
   "weer": {
    "attempts": [
@@ -127,8 +118,8 @@
     {
      "endpoint": "https://archive-api.open-meteo.com/v1/archive?latitude=52.7&longitude=6.19&start_date=2026-08-27&end_date=2026-11-19&hourly=temperature_2m%2Cshortwave_radiation%2Ccloud_cover%2Cwind_speed_10m%2Cwind_speed_100m&timezone=Europe%2FAmsterdam",
      "http": 200,
-     "records": 0,
-     "body": "Unexpected error while streaming data: fileModifiedOrPrevalidationFailed"
+     "records": 2040,
+     "body": ""
     }
    ]
   },
