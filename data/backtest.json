@@ -399,7 +399,7 @@
    "venster_dagen": 5,
    "n_vensters": 73,
    "eenheid": "ct/kWh kale marktprijs, gemiddelde van de gekozen uren",
-   "model": 6.62,
+   "model": 6.61,
    "optimum_achteraf": 5.12,
    "gemiddeld_uur": 15.66,
    "alleen_uurprofiel": 8.69,
